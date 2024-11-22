@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "moubile",
+    "scheme": "moubile",
     "slug": "moubile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,10 +19,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.moubile.aora"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }
