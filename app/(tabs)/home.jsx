@@ -26,7 +26,22 @@ const Home = () => {
     setRefreshing(fasle);
   };
 
+  const DomainesImages = [
+    { id: "1", src: require("../../assets/images/cards/card1.jpg") }, // Replace with your image paths
+    { id: "2", src: require("../../assets/images/cards/card2.jpeg") },
+    { id: "3", src: require("../../assets/images/cards/card3.jpg") },
+    { id: "4", src: require("../../assets/images/cards/card4.jpg") },
+  ];
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const ITEM_WIDTH = Dimensions.get("window").width; // Full screen width
+  const SPACING = 16; // Adjust based on your padding/margin needs
+
+  const handleScroll = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / screenWidth);
+    setCurrentIndex(newIndex);
+  };
   return (
     <SafeAreaView
       className="bg-primary h-full"
@@ -71,11 +86,73 @@ const Home = () => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         /> */}
 
+      <View style={styles.container}>
+        <FlatList
+          data={DomainesImages}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <Text style={styles.headerText}>Available Domains</Text>
+            </View>
+          )}
+          renderItem={({ item }) => (
+            <Image source={item.src} style={styles.image} resizeMode="cover" />
+          )}
+          snapToInterval={screenWidth} // Use screen width for snapping
+          decelerationRate="fast"
+        />
 
+        <View style={styles.pagination}>
+          {DomainesImages.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                currentIndex === index ? styles.activeDot : styles.inactiveDot,
+              ]}
+            />
+          ))}
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    width: 186, // Adjust width to leave some padding
+    height: 300, // Set desired height
+    marginHorizontal: 20, // Space between images
+    borderRadius: 16, // Rounded corners for the images
+  },
+  pagination: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    alignSelf: "center",
+  },
+  dot: {
+    height: 10,
+    width: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  activeDot: {
+    backgroundColor: "red",
+  },
+  inactiveDot: {
+    backgroundColor: "gray",
+  },
+});
 
 export default Home;
