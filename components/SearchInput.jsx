@@ -11,22 +11,24 @@ const SearchInput = ({ title, value, placeholder, handleChangeText, otherStyles,
         <View
             className={`space-x-4 border-2 w-full h-16 px-4 items-center flex-row rounded-2xl ${isFocused ? 'border-secondary-100' : 'border-black-200'
                 } bg-black-100`}
+                style={{backgroundColor: "#EFEFEF"}}
         >
             <TextInput
                 className="text-base mt-0.5 text-white flex-1 font-pregular"
                 value={value}
-                placeholder="Search for a video topic"
-                placeholderTextColor="#7b7b8b"
+                placeholder="Search for a certain domain"
+                placeholderTextColor="black"
                 onChangeText={handleChangeText}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 secureTextEntry={title === 'Password' && !showPassword}
                 {...props}
+                style={{color: "#000000"}}
             />
             <TouchableOpacity>
                 <Image
                     source={icons.search}
-                    className="w-5 h-5"
+                    className="w-7 h-7"
                     resizeMode='contain'
                 />
             </TouchableOpacity>
