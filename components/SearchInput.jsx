@@ -9,7 +9,7 @@ const SearchInput = ({ title, value, placeholder, handleChangeText, otherStyles,
     return (
 
         <View
-            className={`space-x-4 border-2 w-full h-16 px-4 items-center flex-row rounded-2xl ${isFocused ? 'border-secondary-100' : 'border-black-200'
+            className={`space-x-4 border-2 w-full h-16 px-4 items-center text-black flex-row rounded-2xl ${isFocused ? 'border-secondary-100' : 'border-black-200'
                 } bg-black-100`}
                 style={{backgroundColor: "#EFEFEF"}}
         >
@@ -23,7 +23,6 @@ const SearchInput = ({ title, value, placeholder, handleChangeText, otherStyles,
                 onBlur={() => setIsFocused(false)}
                 secureTextEntry={title === 'Password' && !showPassword}
                 {...props}
-                style={{color: "#000000"}}
             />
             <TouchableOpacity>
                 <Image
