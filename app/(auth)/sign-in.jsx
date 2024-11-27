@@ -35,15 +35,22 @@ const SignIn = () => {
   }
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" style={{backgroundColor: "white"}}>
       <ScrollView>
-        <View className="w-full justify-center min-h-[80vh] px-4 my-6">
-          <Image
-            source={images.logo}
-            resizeMode='contain'
-            className='w-[100px] h-[85px]'
-          />
-          <Text className='font-psemibold text-white text-3xl mt-10 text-semibold'>
+        <View className="w-full justify-center min-h-[80vh] px-4 my-6"><View className="flex-row items-center">
+            <Image
+              source={images.logoCercle}
+              resizeMode="contain"
+              className="w-[100px] h-[85px]"
+            />
+            <Text
+              className="text-3xl font-bold"
+              style={{ color: "black", marginLeft: 10 }}
+            >
+              Repair Master
+            </Text>
+          </View>
+          <Text className='font-psemibold text-white text-3xl mt-10 text-semibold' style={{color: "black"}} >
             Sign in
           </Text>
           <FormField
@@ -67,10 +74,10 @@ const SignIn = () => {
           />
           <View className="justify-center pt-5 flex-row gap-2
           ">
-            <Text className="text-lg text-gray-100 font-pregular">
+            <Text className="text-lg text-gray-100 font-pregular"  style={{color:"#7B7B8B"}}>
               Don't Have an Account?
             </Text>
-            <Link href="/sign-up" className="text-lg font-psemibold text-secondary">Sign Up</Link>
+            <Link href="/sign-up" className="text-lg font-psemibold text-secondary" style={{color: "#FF0101"}}>Sign Up</Link>
           </View>
         </View>
       </ScrollView>

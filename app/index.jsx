@@ -13,7 +13,7 @@ export default function App() {
     if (!isLoading && isLoggedIn) return <Redirect href="/home"/>
 
     return (
-        <SafeAreaView className="bg-primary h-full">
+        <SafeAreaView className="bg-primary h-full" style={{ backgroundColor: 'white' }}>
             <ScrollView contentContainerStyle={{ height: '100%' }}>
                 <View className="w-full justify-start items-center h-full px-4 gap-5">
                     <Image
@@ -27,18 +27,11 @@ export default function App() {
                         resizeMode='contain'
                     />
                     <View className='relative mt-5'>
-                        <Text className='text-3xl text-white font-bold text-center'>
-                            Discover Endless Possibilities with {' '}
-                            <Text className='text-secondary-200'>Aora</Text>
+                        <Text className='text-3xl text-white font-bold text-center' style={{color: "#000000"}}>
+                        Repair Master: Skilled Help, Just a Tap Away!
                         </Text>
-                        <Image
-                            source={images.path}
-                            className='w-[100px] h-[15px] absolute -bottom-2 right-24'
-                            resizeMode='contain'
-                        />
                     </View>
-                    <Text className='text-base font-pregular text-gray-100 mt-7 text-center'>Where Creativity Meets Innovation:
-                        Embark on a Journey of Limitless Exploration with Aora
+                    <Text className='text-base font-pregular text-gray-100 mt-7 text-center'>Your go-to app for reliable fixes, anytime, anywhere!
                     </Text>
                     <CustomButton
                         title="Continue with Email"
