@@ -44,16 +44,12 @@ const Home = () => {
   };
   return (
     <SafeAreaView
-      className="bg-primary h-full"
-      style={{ backgroundColor: "white" }}
-    >
+      className="bg-primary h-full">
       <View className="my-6 px-4 space-y-6">
         <View className="justify-between items-start flex-row mb-6 ">
           <View>
             <Text
-              className="font-pmedium text-sm text-gray-100"
-              style={{ color: "#7B7B8B" }}
-            >
+              className="font-pmedium text-sm text-gray-100">
               Welcome Back
             </Text>
             <Text className="text-2xl font-psemibold text-black">Ahmed</Text>

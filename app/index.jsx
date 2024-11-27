@@ -13,7 +13,7 @@ export default function App() {
     if (!isLoading && isLoggedIn) return <Redirect href="/home"/>
 
     return (
-        <SafeAreaView className="bg-primary h-full" style={{ backgroundColor: 'white' }}>
+        <SafeAreaView className="bg-primary h-full">
             <ScrollView contentContainerStyle={{ height: '100%' }}>
                 <View className="w-full justify-start items-center h-full px-4 gap-5">
                     <Image
@@ -27,7 +27,7 @@ export default function App() {
                         resizeMode='contain'
                     />
                     <View className='relative mt-5'>
-                        <Text className='text-3xl text-white font-bold text-center' style={{color: "#000000"}}>
+                        <Text className='text-3xl text-black font-bold text-center'>
                         Repair Master: Skilled Help, Just a Tap Away!
                         </Text>
                     </View>
