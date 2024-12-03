@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
   image: {
     marginHorizontal: 7, // Space between images
     borderRadius: 14, // Rounded corners for the images
+    alignSelf: 'center', // Centers the image horizontally within its parent
   },
   activeImage: {
     width: 168, // Adjust width to leave some padding
