@@ -34,9 +34,9 @@ const Home = () => {
 
   const users = [
     { name: 'Ahmed Essouaied', desc: "Expert Electrical Services", imageUri: require('../../assets/images/jobs/photo1.png') },
-    { name: 'Ahmed Essouaied', desc: "Expert Electrical Services",  imageUri: require('../../assets/images/jobs/photo2.png') },
-    { name: 'Ahmed Essouaied', desc: "Expert Electrical Services",  imageUri: require('../../assets/images/jobs/photo3.jpg') },
-    { name: 'Ahmed Essouaied', desc: "Expert Electrical Services",  imageUri: require('../../assets/images/jobs/photo4.png') },
+    { name: 'Ahmed Essouaied', desc: "Home improvement",  imageUri: require('../../assets/images/jobs/photo2.png') },
+    { name: 'Ahmed Essouaied', desc: "installation, repair, or general carpentry.",  imageUri: require('../../assets/images/jobs/photo3.jpg') },
+    { name: 'Ahmed Essouaied', desc: "construction, installation, or maintenance.",  imageUri: require('../../assets/images/jobs/photo4.png') },
   ];
 
   const flatListRef = useRef(null);

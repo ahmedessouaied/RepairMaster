@@ -1,33 +1,34 @@
 import React from "react";
 import { images } from "../../constants";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import { router } from 'expo-router';
 
 const Profile = () => {
+
   return (
-    <View className="bg-primary h-full ">
+    <SafeAreaView style={[styles.container, { marginTop: 20 }]}>
       <View style={styles.profileSection}>
-        <Image
-          // source={{ uri: 'https://via.placeholder.com/80' }}
-          source={images.profile}
-          style={styles.profileImage}
-        />
-        <Text className="text-2xl font-psemibold text-black">Emna Maalej</Text>
+        <Image source={images.profile} style={styles.profileImage} />
+        <Text style={styles.profileName}>Emna Maalej</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text className="font-psemibold text-l text-black">2</Text>
-            <Text className="font-psemibold text-sm text-grey">
-              Total Posts
-            </Text>
+            <Text style={styles.statValue}>2</Text>
+            <Text style={styles.statLabel}>Total Posts</Text>
           </View>
           <View style={styles.statItem}>
-            <Text className="font-psemibold text-l text-black">1</Text>
-            <Text className="font-psemibold text-sm text-grey">
-              Active Posts
-            </Text>
+            <Text style={styles.statValue}>1</Text>
+            <Text style={styles.statLabel}>Active Posts</Text>
           </View>
           <View style={styles.statItem}>
-            <Text className="font-psemibold text-l text-black">1</Text>
-            <Text className="font-psemibold text-sm">Completed Jobs</Text>
+            <Text style={styles.statValue}>1</Text>
+            <Text style={styles.statLabel}>Completed Jobs</Text>
           </View>
         </View>
       </View>
@@ -36,72 +37,59 @@ const Profile = () => {
       <View style={styles.cardContainer}>
         {/* Card 1 */}
         <View style={styles.cardHeader}>
-          <Text className="font-psemibold text-sm text-black">Leaky Faucet</Text>
-          <Text className="font-pmedium text-sm text-grey">Plumbery</Text>
+          <Text style={styles.cardTitle}>Leaky Faucet</Text>
+          <Text style={styles.cardSubtitle}>Plumbery</Text>
         </View>
         <View style={styles.card}>
           <View style={styles.cardBody}>
             <View style={styles.statusBadgeContainer}>
-              <Text className="font-pmedium text-sm" style={styles.activeBadge}>
-                Active
-              </Text>
+              <Text style={styles.activeBadge}>Active</Text>
             </View>
-            <Text className="text-m font-psemibold text-black">
-              3 offers received
-            </Text>
+            <Text style={styles.cardOffers}>3 offers received</Text>
           </View>
           <TouchableOpacity style={styles.detailsButton}>
-            <Text
-              className="font-pmedium text-l"
-              style={styles.detailsButtonText}
-            >
-              View Details
-            </Text>
+          <TouchableOpacity onPress={() => router.push("offers/OffersReceived")}>
+      <Text style={styles.detailsButtonText}>View Details</Text>
+    </TouchableOpacity>
           </TouchableOpacity>
         </View>
 
         {/* Card 2 */}
         <View style={styles.cardHeader}>
-          <Text className="font-psemibold text-sm text-black">Light Problem</Text>
-          <Text className="font-pmedium text-sm text-grey">Electricity</Text>
+          <Text style={styles.cardTitle}>Light Problem</Text>
+          <Text style={styles.cardSubtitle}>Electricity</Text>
         </View>
         <View style={styles.card}>
           <View style={styles.cardBody}>
             <View style={styles.statusBadgeContainer}>
-              <Text
-                className="font-pmedium text-sm"
-                style={styles.completedBadge}
-              >
-                Completed
-              </Text>
+              <Text style={styles.completedBadge}>Completed</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.detailsButton}>
-            <Text
-              className="font-pmedium text-l"
-              style={styles.detailsButtonText}
-            >
-              View Details
-            </Text>
+            <Text style={styles.detailsButtonText}>View Details</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5", // Adjust background as needed
+  },
   profileSection: {
     alignItems: "center",
     marginBottom: 24,
-    padding:24
+    padding: 24,
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: "#FF0000", // Red border
+    borderColor: "#FF0000",
   },
   profileName: {
     fontSize: 20,
@@ -129,7 +117,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   cardContainer: {
-    padding:24
+    padding: 24,
   },
   card: {
     backgroundColor: "#EDEDED",

@@ -11,7 +11,7 @@ const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, .
       <Text className="text-base text-gray-100 font-pmedium"  style={{color:"#7B7B8B"}}>{title}</Text>
       <View
         className={`border-2 w-full h-16 px-4 items-center flex-row rounded-2xl ${
-          isFocused ? 'border-secondary-100' : 'border-black-200'
+          isFocused ? 'border-secondary-100' : 'border-gray-200'
         } bg-black-100`}
         style={{backgroundColor: "#EFEFEF"}}
       >
@@ -31,8 +31,11 @@ const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, .
           <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
             <Image
               source={showPassword ? icons.eye : icons.eyeHide}
-              className="w-6 h-6"
-              resizeMode="contain"
+              style={{
+                width: 40,
+                height: 40,
+                resizeMode: "contain",
+              }}
             />
           </TouchableOpacity>
         )}

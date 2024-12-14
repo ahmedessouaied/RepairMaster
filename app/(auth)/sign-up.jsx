@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../../components/FormField';
 import { images } from '../../constants';
 import CustomButton from '../../components/CustomButton';
+import CustomDropdown from '../../components/CustomDropdown';
 import { createUser } from '../../lib/appwrite';
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -73,6 +74,7 @@ const SignUp = () => {
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
           />
+          <CustomDropdown/>
           <CustomButton 
             title="Sign Up"
             handlePress={submit}

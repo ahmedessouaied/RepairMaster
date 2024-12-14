@@ -9,7 +9,7 @@ const SearchInput = ({ title, value, placeholder, handleChangeText, otherStyles,
     return (
 
         <View
-            className={`space-x-4 border-2 w-full h-16 px-4 items-center text-black flex-row rounded-2xl ${isFocused ? 'border-secondary-100' : 'border-black-200'
+            className={`space-x-4 border-2 w-full h-16 px-4 items-center text-black flex-row rounded-2xl ${isFocused ? 'border-secondary-100' : 'border-gray-300'
                 } bg-black-100`}
                 style={{backgroundColor: "#EFEFEF"}}
         >
@@ -27,8 +27,11 @@ const SearchInput = ({ title, value, placeholder, handleChangeText, otherStyles,
             <TouchableOpacity>
                 <Image
                     source={icons.search}
-                    className="w-7 h-7"
-                    resizeMode='contain'
+                    style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain",
+                      }}
                 />
             </TouchableOpacity>
         </View>
