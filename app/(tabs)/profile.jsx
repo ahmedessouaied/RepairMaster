@@ -8,10 +8,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { router } from 'expo-router';
+import { router } from "expo-router";
 
 const Profile = () => {
-
   return (
     <SafeAreaView style={[styles.container, { marginTop: 20 }]}>
       <View style={styles.profileSection}>
@@ -48,9 +47,11 @@ const Profile = () => {
             <Text style={styles.cardOffers}>3 offers received</Text>
           </View>
           <TouchableOpacity style={styles.detailsButton}>
-          <TouchableOpacity onPress={() => router.push("offers/OffersReceived")}>
-      <Text style={styles.detailsButtonText}>View Details</Text>
-    </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/offers/OffersReceived")}
+            >
+              <Text style={styles.detailsButtonText}>View Details</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
 
@@ -65,7 +66,8 @@ const Profile = () => {
               <Text style={styles.completedBadge}>Completed</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.detailsButton}>
+          <TouchableOpacity style={styles.detailsButton}
+              onPress={() => router.push("/RepairDetails/RepairDetails")}>
             <Text style={styles.detailsButtonText}>View Details</Text>
           </TouchableOpacity>
         </View>

@@ -47,7 +47,11 @@ const RootLayout = () => {
         />
         <Stack.Screen
           name="offers/OffersReceived"
-          options={{ headerShown: false }}
+          options={{ headerShown: true, title: "Offers Received" }}
+        />
+        <Stack.Screen
+          name="RepairDetails/RepairDetails"
+          options={{ headerShown: true, title: "Repair Details" }}
         />
       </Stack>
     </GlobalProvider>

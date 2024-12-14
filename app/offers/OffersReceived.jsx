@@ -65,16 +65,8 @@ const OffersReceived = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity 
-        style={styles.backButton} 
-        onPress={handleGoBack}
-      >
-        <ChevronLeft color="#000" size={24} />
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-      
       <View style={{margin: 10}}>
-      <Text style={styles.header}>Offers Received (3)</Text>
+      <Text style={styles.header}>3 Offers Received:</Text>
       <FlatList
         data={offers}
         keyExtractor={(item) => item.id.toString()}
