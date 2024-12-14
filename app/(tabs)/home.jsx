@@ -6,9 +6,9 @@ import {
   RefreshControl,
   StyleSheet,
   Dimensions,
-  ScrollView
+  ScrollView,
 } from "react-native";
-import React, { useState, useEffect, useRef }  from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import SearchInput from "../../components/SearchInput";
@@ -33,10 +33,26 @@ const Home = () => {
   ];
 
   const users = [
-    { name: 'Ahmed Essouaied', desc: "Expert Electrical Services", imageUri: require('../../assets/images/jobs/photo1.png') },
-    { name: 'Ahmed Essouaied', desc: "Home improvement",  imageUri: require('../../assets/images/jobs/photo2.png') },
-    { name: 'Ahmed Essouaied', desc: "installation, repair, or general carpentry.",  imageUri: require('../../assets/images/jobs/photo3.jpg') },
-    { name: 'Ahmed Essouaied', desc: "construction, installation, or maintenance.",  imageUri: require('../../assets/images/jobs/photo4.png') },
+    {
+      name: "Ahmed Essouaied",
+      desc: "Expert Electrical Services",
+      imageUri: require("../../assets/images/jobs/photo1.png"),
+    },
+    {
+      name: "Ahmed Essouaied",
+      desc: "Home improvement",
+      imageUri: require("../../assets/images/jobs/photo2.png"),
+    },
+    {
+      name: "Ahmed Essouaied",
+      desc: "installation, repair, or general carpentry.",
+      imageUri: require("../../assets/images/jobs/photo3.jpg"),
+    },
+    {
+      name: "Ahmed Essouaied",
+      desc: "construction, installation, or maintenance.",
+      imageUri: require("../../assets/images/jobs/photo4.png"),
+    },
   ];
 
   const flatListRef = useRef(null);
@@ -58,105 +74,93 @@ const Home = () => {
     }
   };
 
-
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleScroll = (event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(offsetX / screenWidth);
+    const newIndex = Math.round(offsetX / 160);
     setCurrentIndex(newIndex);
   };
 
   return (
-    <SafeAreaView
-      className="bg-primary h-full">
-        <ScrollView>
-      <View className="my-6 px-4 space-y-6">
-        <View className="justify-between items-start flex-row mb-6 ">
-          <View>
-            <Text
-              className="font-pmedium text-sm text-gray-100">
-              Welcome Back
-            </Text>
-            <Text className="text-2xl font-psemibold text-black">Ahmed</Text>
+    <SafeAreaView className="bg-primary h-full">
+      <ScrollView>
+        <View className="my-6 px-4 space-y-6">
+          <View className="justify-between items-start flex-row mb-6 ">
+            <View>
+              <Text className="font-pmedium text-sm text-gray-100">
+                Welcome Back
+              </Text>
+              <Text className="text-2xl font-psemibold text-black">Ahmed</Text>
+            </View>
+            <View className="mt-1.5">
+              <Image
+                source={images.logoCercle}
+                className="w-9 h-10"
+                resizeMode="contain"
+              />
+            </View>
           </View>
-          <View className="mt-1.5">
-            <Image
-              source={images.logoCercle}
-              className="w-9 h-10"
-              resizeMode="contain"
-            />
-          </View>
+          <SearchInput />
         </View>
-        <SearchInput />
-      </View>
 
-      {/* <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }]}
+        <View>
+          <Text
+            className="text-2xl font-pmedium text-gray-100"
+            style={{ padding: "11px" }}
+          >
+            Available Domains:
+          </Text>
+        </View>
 
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <Text className="text-3xl text-black">{item.id}</Text>
-        )}
-        ListEmptyComponent={() => (
-          <EmptyState
-            title="No Videos Found"
-            subtitle="Be the first one to upload a video"
-          />
-        )}
-        // ListHeaderComponent={() => ()}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        /> */}
-      <View>
-        <Text className="text-2xl font-pmedium text-gray-100" style={{padding:"11px"}}>Available Domains:</Text>
-      </View>
-      <View style={styles.container}>
-        <FlatList
+        <View style={styles.container}>
+          <FlatList
             data={DomainesImages}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            onScroll={handleScroll}
             scrollEventThrottle={16}
-            getItemLayout={getItemLayout}
-            onScrollToIndexFailed={onScrollToIndexFailed}
             renderItem={({ item, index }) => (
               <Image
                 source={item.src}
                 style={[
                   styles.image,
-                  currentIndex === index ? styles.activeImage : styles.inactiveImage,
+                  currentIndex === index
+                    ? styles.activeImage
+                    : styles.inactiveImage,
                 ]}
                 resizeMode="cover"
               />
             )}
-            initialScrollIndex={3}
-            snapToInterval={screenWidth}
+            snapToInterval={screenWidth} // Use screen width for snapping
             decelerationRate="fast"
           />
 
-
-        <View style={styles.pagination}>
-          {DomainesImages.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                currentIndex === index ? styles.activeDot : styles.inactiveDot,
-              ]}
-            />
-          ))}
+          <View style={styles.pagination}>
+            {DomainesImages.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  currentIndex === index
+                    ? styles.activeDot
+                    : styles.inactiveDot,
+                ]}
+              />
+            ))}
+          </View>
         </View>
-      </View>
+
         {users.map((user, index) => (
           <View key={index} style={styles.card}>
-            <CardHeader title={user.name} desc={user.desc}/>
+            <CardHeader title={user.name} desc={user.desc} />
             <Image source={user.imageUri} style={styles.Jobimage} />
           </View>
         ))}
-</ScrollView>
+      </ScrollView>
     </SafeAreaView>
-    
   );
 };
 
@@ -170,7 +174,7 @@ const styles = StyleSheet.create({
   image: {
     marginHorizontal: 7, // Space between images
     borderRadius: 14, // Rounded corners for the images
-    alignSelf: 'center', // Centers the image horizontally within its parent
+    alignSelf: "center", // Centers the image horizontally within its parent
   },
   activeImage: {
     width: 168, // Adjust width to leave some padding
@@ -201,13 +205,13 @@ const styles = StyleSheet.create({
   },
   Jobcontainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -217,15 +221,15 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#333',
+    color: "#333",
   },
   Jobimage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderRadius: 12,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
 });
 
