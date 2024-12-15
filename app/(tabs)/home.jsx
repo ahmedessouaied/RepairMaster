@@ -13,23 +13,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import SearchInput from "../../components/SearchInput";
 import CardHeader from "../../components/CardHeader";
+import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll";
 
-const { width: screenWidth } = Dimensions.get("window");
 
 const Home = () => {
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    // recall videos -> if any new videos
-    setRefreshing(fasle);
-  };
-
   const DomainesImages = [
-    { id: "1", src: require("../../assets/images/cards/card1.jpg") },
-    { id: "2", src: require("../../assets/images/cards/card2.jpeg") },
-    { id: "3", src: require("../../assets/images/cards/card3.jpg") },
-    { id: "4", src: require("../../assets/images/cards/card4.jpg") },
+    { id: "1", src: require("../../assets/images/cards/card1.jpg"), title: "A" },
+    { id: "2", src: require("../../assets/images/cards/card2.jpeg"), title: "A" },
+    { id: "3", src: require("../../assets/images/cards/card3.jpg"), title: "A" },
+    { id: "4", src: require("../../assets/images/cards/card4.jpg"), title: "A" },
   ];
 
   const users = [
@@ -54,33 +46,6 @@ const Home = () => {
       imageUri: require("../../assets/images/jobs/photo4.png"),
     },
   ];
-
-  const flatListRef = useRef(null);
-
-  const getItemLayout = (data, index) => ({
-    length: screenWidth, // Each item is the width of the screen
-    offset: screenWidth * index, // Offset is index times the item width
-    index,
-  });
-
-  const onScrollToIndexFailed = (info) => {
-    console.warn("Failed to scroll to index:", info.index);
-    // Fallback to scroll to the last valid index
-    if (flatListRef.current) {
-      flatListRef.current.scrollToIndex({
-        index: Math.max(info.highestMeasuredFrameIndex, 0),
-        animated: true,
-      });
-    }
-  };
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handleScroll = (event) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(offsetX / 160);
-    setCurrentIndex(newIndex);
-  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -113,45 +78,9 @@ const Home = () => {
           </Text>
         </View>
 
-        <View style={styles.container}>
-          <FlatList
-            data={DomainesImages}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            renderItem={({ item, index }) => (
-              <Image
-                source={item.src}
-                style={[
-                  styles.image,
-                  currentIndex === index
-                    ? styles.activeImage
-                    : styles.inactiveImage,
-                ]}
-                resizeMode="cover"
-              />
-            )}
-            snapToInterval={screenWidth} // Use screen width for snapping
-            decelerationRate="fast"
-          />
-
-          <View style={styles.pagination}>
-            {DomainesImages.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.dot,
-                  currentIndex === index
-                    ? styles.activeDot
-                    : styles.inactiveDot,
-                ]}
-              />
-            ))}
-          </View>
-        </View>
+        <SafeAreaView style={styles.container}>
+          <SmoothHorizontalScroll  images={DomainesImages} />
+        </SafeAreaView>
 
         {users.map((user, index) => (
           <View key={index} style={styles.card}>
@@ -170,38 +99,6 @@ const styles = StyleSheet.create({
     height: 300,
     alignItems: "center",
     justifyContent: "center",
-  },
-  image: {
-    marginHorizontal: 7, // Space between images
-    borderRadius: 14, // Rounded corners for the images
-    alignSelf: "center", // Centers the image horizontally within its parent
-  },
-  activeImage: {
-    width: 168, // Adjust width to leave some padding
-    height: 268, // Set desired height
-  },
-  inactiveImage: {
-    width: 148, // Adjust width to leave some padding
-    height: 236, // Set desired height
-  },
-  pagination: {
-    flexDirection: "row",
-    position: "absolute",
-    bottom: 0,
-    alignSelf: "center",
-  },
-  dot: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    backgroundColor: "red",
-    width: 35,
-  },
-  inactiveDot: {
-    backgroundColor: "gray",
   },
   Jobcontainer: {
     flex: 1,
