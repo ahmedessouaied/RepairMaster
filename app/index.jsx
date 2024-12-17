@@ -34,7 +34,7 @@ export default function App() {
                     <Text className='text-base font-pregular text-gray-100 mt-7 text-center'>Your go-to app for reliable fixes, anytime, anywhere!
                     </Text>
                     <CustomButton
-                        title="Continue with Email"
+                        title="Sign-In to find your service"
                         handlePress={() => { router.push('/sign-in') }}
                         containerStyles="w-full mt-7"
                     />

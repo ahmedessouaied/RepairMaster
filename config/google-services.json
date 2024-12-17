@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "396887731178",
+    "project_id": "repairmaster-supcom",
+    "storage_bucket": "repairmaster-supcom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396887731178:android:6fb05ed67dd1f288e3a093",
+        "android_client_info": {
+          "package_name": "com.mobile.RepairMaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEVz7JxE-Fatsh4fl8lhaOKxU1ZZ7kM9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
