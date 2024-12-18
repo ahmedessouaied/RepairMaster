@@ -20,7 +20,7 @@ const SignUp = () => {
 
   // Firebase Sign-Up Handler
   const submit = async () => {
-    const { username, email, password } = form;
+    const { username, email, password, type } = form;
 
     if (!username || !email || !password) {
       Alert.alert('Error', 'Please fill in all the fields.');
@@ -46,6 +46,8 @@ const SignUp = () => {
       setisSubmitting(false);
     }
   };
+  setForm({ ...form, type: "customer"})
+  setForm({ ...form, type: "customer"})
 
   return (
     <SafeAreaView className="bg-primary h-full">

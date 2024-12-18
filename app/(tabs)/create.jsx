@@ -8,50 +8,81 @@ import {
   StyleSheet,
   Modal,
   FlatList,
+  ScrollView,
 } from "react-native";
-import { launchImageLibrary } from "react-native-image-picker";
 import { icons } from "../../constants";
+import PhotoUploadComponent from "../../components/PhotoUploadComponent";
+import Firestore, { db } from "../../config/firebaseConfig.js"; // Firebase imports
+import { collection, getDocs } from "firebase/firestore";
 
 const Create = () => {
   const [title, setTitle] = useState("");
+  const [number, setNumber] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedGovernorate, setSelectedGovernorate] = useState("");
   const [description, setDescription] = useState("");
-  const [photoUri, setPhotoUri] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [governoratesIsModalVisible, setGovernoratesIsModalVisible] =
+    useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const handleImageSelected = (imageUri) => {
+    setSelectedImage(imageUri);
+  };
+
+  const handlePhotoUploaded = (cloudinaryUrl) => {
+    // Do something with the Cloudinary URL
+    console.log(cloudinaryUrl);
+    // Maybe save to your database or state
+  };
 
   const categories = ["Category 1", "Category 2", "Category 3"];
+  const tunisian_governorates = [
+    "Tunis",
+    "Sfax",
+    "Sousse",
+    "Kairouan",
+    "Bizerte",
+    "Gabès",
+    "Nabeul",
+    "Hammamet",
+    "Monastir",
+    "Mahdia",
+    "Tataouine",
+    "Tozeur",
+    "Gafsa",
+    "El Kef",
+    "Jendouba",
+    "Medenine",
+    "Kasserine",
+    "Siliana",
+    "Zaghouan",
+    "M'saken",
+    "Kelibia",
+    "Béja",
+    "Gremda",
+    "Hammam-Lif",
+  ];
 
   const handleSubmit = () => {
     console.log("Title:", title);
     console.log("Category:", selectedCategory);
+    console.log("Governorate:", selectedGovernorate);
     console.log("Description:", description);
-    console.log("Photo URI:", photoUri);
-  };
-
-  const handlePhotoUpload = () => {
-    launchImageLibrary(
-      {
-        mediaType: "photo",
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log("User cancelled image picker");
-        } else if (response.errorCode) {
-          console.log("Image picker error: ", response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          setPhotoUri(response.assets[0].uri);
-        }
-      }
-    );
+    console.log("Number:", number);
+    console.log("Photo URI:", selectedImage);
   };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setIsModalVisible(false);
   };
+  const handleGovernoratesSelect = (Governorate) => {
+    setSelectedGovernorate(Governorate);
+    setGovernoratesIsModalVisible(false);
+  };
 
   return (
-    <View style={[styles.container, { marginTop: 20 }]}>
+    <ScrollView style={[styles.container, { marginTop: 20 }]}>
       <Text style={styles.headerText}>Create Job Listing</Text>
 
       <TextInput
@@ -61,13 +92,11 @@ const Create = () => {
         onChangeText={setTitle}
       />
 
-      <TouchableOpacity style={styles.photoUpload} onPress={handlePhotoUpload}>
-        {photoUri ? (
-          <Image source={{ uri: photoUri }} style={styles.photo} />
-        ) : (
-          <Image source={icons.upload} style={styles.photo} />
-        )}
-      </TouchableOpacity>
+      <PhotoUploadComponent
+        icons={icons}
+        styles={styles}
+        onPhotoUpload={handlePhotoUploaded}
+      />
 
       <View style={styles.categorySection}>
         <Text style={styles.label}>Choose Category</Text>
@@ -77,6 +106,19 @@ const Create = () => {
         >
           <Text style={styles.dropdownText}>
             {selectedCategory || "Categories"}
+          </Text>
+          <Text style={styles.dropdownArrow}>▼</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.categorySection}>
+        <Text style={styles.label}>Choose Governorate</Text>
+        <TouchableOpacity
+          style={styles.dropdown}
+          onPress={() => setGovernoratesIsModalVisible(true)}
+        >
+          <Text style={styles.dropdownText}>
+            {selectedGovernorate || "Governorates"}
           </Text>
           <Text style={styles.dropdownArrow}>▼</Text>
         </TouchableOpacity>
@@ -112,6 +154,44 @@ const Create = () => {
         </View>
       </Modal>
 
+      <Modal
+        visible={governoratesIsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setGovernoratesIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={tunisian_governorates}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.modalItem}
+                  onPress={() => handleGovernoratesSelect(item)}
+                >
+                  <Text style={styles.modalItemText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity
+              style={styles.closeModalButton}
+              onPress={() => setGovernoratesIsModalVisible(false)}
+            >
+              <Text style={styles.closeModalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Phone Number"
+        multiline={true}
+        value={number}
+        onChangeText={setNumber}
+      />
+
       <TextInput
         style={styles.textArea}
         placeholder="Write description..."
@@ -123,7 +203,7 @@ const Create = () => {
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit & Publish</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
