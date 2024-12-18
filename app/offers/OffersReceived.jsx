@@ -31,7 +31,7 @@ const offers = [
  {
     id: 3,
     name: "Mohamed Sehli",
-    description: "Quik Fix Electrician",
+    description: "Quick Fix Electrician",
     rating: 4.2,
     price: "22DT",
     image: "https://via.placeholder.com/50",
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     borderColor: "#EEE",
     borderRadius: 8,
     backgroundColor: "#FFF",
+
   },
   image: {
     width: 50,
