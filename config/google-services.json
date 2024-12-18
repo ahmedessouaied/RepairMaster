@@ -12,12 +12,7 @@
           "package_name": "com.mobile.RepairMaster"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "396887731178-2bjfdp3vi8f1ksb63oumpe01db7a7hi3.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyBEVz7JxE-Fatsh4fl8lhaOKxU1ZZ7kM9w"
@@ -25,12 +20,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "396887731178-2bjfdp3vi8f1ksb63oumpe01db7a7hi3.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
