@@ -7,28 +7,30 @@ import {
   ScrollView, 
   StyleSheet 
 } from 'react-native';
-// List of Tunisian Governorates (Wilayat)
-const TUNISIAN_GOVERNORATES = [
-  'Ariana', 'Béja', 'Ben Arous', 'Bizerte', 'Gabès', 'Gafsa', 'Jendouba', 
-  'Kairouan', 'Kasserine', 'Kebili', 'Le Kef', 'Mahdia', 'Manouba', 
-  'Médenine', 'Monastir', 'Nabeul', 'Sfax', 'Sidi Bouzid', 'Siliana', 
-  'Sousse', 'Tataouine', 'Tozeur', 'Tunis', 'Zaghouan'
-].sort();
- // Sort alphabetically
 
-const GovernorateDropdown = ({ 
-  
-  onSelectGovernorate, 
-  selectedGovernorate = '', 
-  placeholder = 'Select Governorate',
+// List of Fields of Work
+const FIELDS_OF_WORK = [
+  'Plumber',
+  'Electrician',
+  'Carpenter',
+  'Painter',
+  'HVAC Technician',
+  'General Maintenance',
+  'Appliance Repair',
+  'Electronics Repair'
+].sort(); // Sort alphabetically
+
+const FieldOfWorkDropdown = ({ 
+  onSelectField, 
+  selectedField = '', 
+  placeholder = 'Select Field of Work',
   containerStyle = {},
   textStyle = {},
-
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleGovernorateSelect = (governorate) => {
-    onSelectGovernorate(governorate);
+  const handleFieldSelect = (field) => {
+    onSelectField(field);
     setIsModalVisible(false);
   };
 
@@ -42,15 +44,15 @@ const GovernorateDropdown = ({
         <Text 
           style={[
             styles.dropdownText, 
-            textStyle,
-            { color: selectedGovernorate ? '#000' : '#999' }
+            textStyle, 
+            { color: selectedField ? '#000' : '#999' }
           ]}
         >
-          {selectedGovernorate || placeholder}
+          {selectedField || placeholder}
         </Text>
       </TouchableOpacity>
 
-      {/* Governorate Selection Modal */}
+      {/* Field of Work Selection Modal */}
       <Modal
         transparent={true}
         visible={isModalVisible}
@@ -59,16 +61,16 @@ const GovernorateDropdown = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Select Your Governorate</Text>
+            <Text style={styles.modalTitle}>Select Field of Work</Text>
             
             <ScrollView>
-              {TUNISIAN_GOVERNORATES.map((governorate) => (
+              {FIELDS_OF_WORK.map((field) => (
                 <TouchableOpacity
-                  key={governorate}
-                  onPress={() => handleGovernorateSelect(governorate)}
-                  style={styles.governorateItem}
+                  key={field}
+                  onPress={() => handleFieldSelect(field)}
+                  style={styles.fieldItem}
                 >
-                  <Text style={styles.governorateItemText}>{governorate}</Text>
+                  <Text style={styles.fieldItemText}>{field}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -101,41 +103,41 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    backgroundColor: 'rgba(0,0,0,0.5)'
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContainer: {
     width: '80%', 
     backgroundColor: 'white', 
     borderRadius: 10, 
     padding: 20,
-    maxHeight: '70%'
+    maxHeight: '70%',
   },
   modalTitle: {
     fontSize: 18, 
     fontWeight: 'bold', 
     marginBottom: 15, 
-    textAlign: 'center'
+    textAlign: 'center',
   },
-  governorateItem: {
+  fieldItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0'
+    borderBottomColor: '#E0E0E0',
   },
-  governorateItemText: {
+  fieldItemText: {
     textAlign: 'center', 
-    fontSize: 16
+    fontSize: 16,
   },
   cancelButton: {
     marginTop: 15,
     padding: 10,
     backgroundColor: '#FF0000',
-    borderRadius: 5
+    borderRadius: 5,
   },
   cancelButtonText: {
     color: 'white', 
     textAlign: 'center', 
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+  },
 });
 
-export default GovernorateDropdown;
+export default FieldOfWorkDropdown;

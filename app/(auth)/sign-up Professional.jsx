@@ -6,6 +6,7 @@ import FormField from '../../components/FormField.jsx';
 import { images } from '../../constants/index.js';
 import CustomButton from '../../components/CustomButton.jsx';
 import GovernorateDropdown from '../../components/GovernorateDropdown.jsx';
+import FieldOfWorkDropdown from '../../components/FieldOfWorkDropdown.jsx'; // Import the new dropdown
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
@@ -17,6 +18,8 @@ const SignUpProfessional = () => {
     password: '',
     confirmPassword: '',
     governorate: '',
+    fieldOfWork: '',
+    description: '',
   });
 
   const [isSubmitting, setisSubmitting] = useState(false);
@@ -24,32 +27,20 @@ const SignUpProfessional = () => {
 
   const validatePassword = (password) => {
     const errors = [];
-    
-    if (password.length < 8) {
-      errors.push("Password must be at least 8 characters long");
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push("Password must contain at least one uppercase letter");
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push("Password must contain at least one lowercase letter");
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push("Password must contain at least one number");
-    }
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      errors.push("Password must contain at least one special character");
-    }
-    
+    if (password.length < 8) errors.push("Password must be at least 8 characters long");
+    if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter");
+    if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter");
+    if (!/[0-9]/.test(password)) errors.push("Password must contain at least one number");
+    if (!/[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]/.test(password)) errors.push("Password must contain at least one special character");
     return errors;
   };
 
   const submit = async () => {
-    const { username, email, Phone_Number, password, confirmPassword, governorate } = form;
+    const { username, email, Phone_Number, password, confirmPassword, governorate, fieldOfWork, description } = form;
 
     setPasswordErrors([]);
 
-    if (!username || !email || !Phone_Number || !password || !confirmPassword || !governorate) {
+    if (!username || !email || !Phone_Number || !password || !confirmPassword || !governorate || !fieldOfWork || !description) {
       Alert.alert('Error', 'Please fill in all the fields.');
       return;
     }
@@ -59,8 +50,12 @@ const SignUpProfessional = () => {
       return;
     }
 
+    if (description.length < 50) {
+      Alert.alert('Error', 'Description should be at least 50 characters long.');
+      return;
+    }
+
     const passwordValidationErrors = validatePassword(password);
-    
     if (passwordValidationErrors.length > 0) {
       setPasswordErrors(passwordValidationErrors);
       return;
@@ -73,30 +68,29 @@ const SignUpProfessional = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update the display name with role and username
       await updateProfile(user, {
         displayName: JSON.stringify({ role: "professional", username }),
       });
 
-      // Initialize Firestore
       const db = getFirestore();
 
-      // Create a new document in the Professionals collection with auto-generated ID
       await addDoc(collection(db, 'Professionals'), {
         username,
         email,
         phoneNumber: Phone_Number,
         governorate,
+        fieldOfWork,
+        description,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         userId: user.uid,
         role: 'professional',
         profileComplete: false,
-        status: 'pending', // Professional accounts might need approval
+        status: 'pending',
         rating: 0,
         totalRatings: 0,
         completedJobs: 0,
-        specialties: [], // To be filled later
+        specialties: [fieldOfWork],
         availabilityStatus: 'available',
         verificationStatus: 'unverified'
       });
@@ -106,12 +100,8 @@ const SignUpProfessional = () => {
 
       router.replace('/home Professional');
     } catch (error) {
-      // Handle specific Firebase auth errors
       if (error.code === 'auth/email-already-in-use') {
-        Alert.alert(
-          'Email Already Registered',
-          'This email address is already associated with an account. Please use a different email or sign in.'
-        );
+        Alert.alert('Email Already Registered', 'This email address is already associated with an account. Please use a different email or sign in.');
       } else {
         Alert.alert('Error', error.message);
       }
@@ -126,21 +116,12 @@ const SignUpProfessional = () => {
       <ScrollView>
         <View className="w-full justify-center min-h-[80vh] px-4 my-6">
           <View className="flex-row items-center">
-            <Image
-              source={images.logoCercle}
-              resizeMode="contain"
-              className="w-[100px] h-[85px]"
-            />
-            <Text
-              className="text-3xl font-bold"
-              style={{ color: 'black', marginLeft: 10 }}
-            >
+            <Image source={images.logoCercle} resizeMode="contain" className="w-[100px] h-[85px]" />
+            <Text className="text-3xl font-bold" style={{ color: 'black', marginLeft: 10 }}>
               Repair Master
             </Text>
           </View>
-          <Text className="font-psemibold text-black text-3xl mt-10 text-semibold">
-            Sign Up
-          </Text>
+          <Text className="font-psemibold text-black text-3xl mt-10 text-semibold">Sign Up</Text>
           <FormField
             title="Username"
             value={form.username}
@@ -161,21 +142,41 @@ const SignUpProfessional = () => {
             otherStyles="mt-7"
             keyboardType="email-address"
           />
-          
+
           <View style={{ marginTop: 20 }}>
-            <Text className="text-base font-pmedium text-gray-100 mb-2">
-              Governorate
-            </Text>
+            <Text className="text-base font-pmedium text-gray-100 mb-2">Governorate</Text>
             <GovernorateDropdown
-              onSelectGovernorate={(governorate) => 
-                setForm({ ...form, governorate })
-              }
+              onSelectGovernorate={(governorate) => setForm({ ...form, governorate })}
               selectedGovernorate={form.governorate}
               placeholder="Choose Your Governorate"
-              containerStyle={{ 
-                borderWidth: 1, 
-                borderColor: '#CCC', 
-                borderRadius: 8 
+              containerStyle={{
+                borderWidth: 1,
+                borderColor: '#CCC',
+                borderRadius: 8
+              }}
+            />
+          </View>
+
+          <View style={{ marginTop: 20 }}>
+            <Text className="text-base font-pmedium text-gray-100 mb-2">Field of Work</Text>
+            <FieldOfWorkDropdown
+              onSelectField={(fieldOfWork) => setForm({ ...form, fieldOfWork })}
+              selectedField={form.fieldOfWork}
+            />
+          </View>
+
+          <View style={{ marginTop: 20 }}>
+            <Text className="text-base font-pmedium text-gray-100 mb-2">Professional Description</Text>
+            <FormField
+              value={form.description}
+              handleChangeText={(e) => setForm({ ...form, description: e })}
+              multiline={true}
+              numberOfLines={4}
+              placeholder="Describe your experience"
+              textAlignVertical="top"
+              style={{
+                height: 150,
+                paddingTop: 10,
               }}
             />
           </View>
@@ -210,13 +211,8 @@ const SignUpProfessional = () => {
             isLoading={isSubmitting}
           />
           <View className="justify-center pt-5 flex-row gap-2">
-            <Text className="text-lg text-gray-100 font-pregular">
-              Have an Account Already?
-            </Text>
-            <Link
-              href="/sign-in"
-              className="text-lg text-red font-psemibold text-secondary"
-            >
+            <Text className="text-lg text-gray-100 font-pregular">Have an Account Already?</Text>
+            <Link href="/sign-in" className="text-lg text-red font-psemibold text-secondary">
               Sign In
             </Link>
           </View>
