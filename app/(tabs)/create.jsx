@@ -24,14 +24,10 @@ const Create = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [governoratesIsModalVisible, setGovernoratesIsModalVisible] =
     useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const handleImageSelected = (imageUri) => {
-    setSelectedImage(imageUri);
-  };
 
-  const handlePhotoUploaded = (cloudinaryUrl) => {
+  const handlePhotoUploaded = (cloudinaryUrls) => {
     // Do something with the Cloudinary URL
-    console.log(cloudinaryUrl);
+    console.log(cloudinaryUrls);
     // Maybe save to your database or state
   };
 
