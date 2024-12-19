@@ -36,9 +36,14 @@ import {
       const querySnapshot = await getDocs(collection(db, "Professionals"));
       const ProfessionalsList = [];
       querySnapshot.forEach((doc) => {
-        ProfessionalsList.push({ id: doc.id, ...doc.data() });
+        const professionalData = doc.data();
+        professionalsList.push({
+          id: doc.id,
+          ...professionalData,
+          imageUrl: professionalData.Profile_pic || null,
+        });
       });
-      setProfessionals(ProfessionalsList);
+      setProfessionals(professionalsList);
     } catch (error) {
       console.error("Error fetching Professionals:", error);
     } finally {
@@ -47,6 +52,7 @@ import {
   };
  
   useEffect(() => {
+    // Initial fetch of all professionals
     fetchProfessionals();
   }, []);
  
@@ -54,12 +60,14 @@ import {
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View className="my-6 px-4 space-y-6">
-          <View className="justify-between items-start flex-row mb-4 ">
+          <View className="justify-between items-start flex-row mb-4">
             <View>
               <Text className="font-pmedium text-sm text-gray-100">
                 Welcome Back
               </Text>
-              <Text className="text-2xl font-psemibold text-black">Lehne nhotou pro</Text>
+              <Text className="text-2xl font-psemibold text-black">
+                Lehne nhoto pro
+              </Text>
             </View>
             <View className="mt-2">
               <Image
@@ -73,14 +81,13 @@ import {
         </View>
  
         <View>
-          <Text
-            className="text-2xl font-pmedium text-red-100 text-center">
+          <Text className="text-2xl font-pmedium text-red-100 text-center">
             Available Domains
           </Text>
         </View>
  
         <SafeAreaView style={styles.container}>
-          <SmoothHorizontalScroll  images={DomainesImages} />
+          <SmoothHorizontalScroll images={DomainesImages} />
         </SafeAreaView>
  
         {loading ? (
@@ -119,9 +126,7 @@ import {
     alignItems: "center",
     justifyContent: "center",
   },
-  Jobcontainer: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
+  cardsContainer: {
     padding: 16,
   },
   card: {
@@ -134,12 +139,6 @@ import {
     elevation: 4,
     padding: 16,
     marginBottom: 16,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#333",
   },
   Jobimage: {
     width: "100%",
