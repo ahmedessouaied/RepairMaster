@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Dimensions,
+  TextInput
 } from "react-native";
-import { router } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
-
-const { width, height } = Dimensions.get('window');
+import StarRating from "../../components/StarRating";
 
 const RepairDetails = () => {
+  const [comment, setComment] = useState("");
   const RepairDetailsJson = {
     id: 1,
     repairer: "Ahmed Essouaied",
@@ -24,6 +22,11 @@ const RepairDetails = () => {
     description:
       "Full home electrical system inspection and rewiring of main circuit board",
     image: "https://via.placeholder.com/150",
+    Rating: 3,
+  };
+
+  const handleRatingChange = (rating) => {
+    console.log(`Review rating updated: ${rating}`);
   };
 
   return (
@@ -31,14 +34,14 @@ const RepairDetails = () => {
       {/* Repair Card */}
       <View style={styles.repairCardContainer}>
         <View style={styles.repairCard}>
-          <Image 
-            source={{ uri: RepairDetailsJson.image }} 
-            style={styles.image} 
+          <Image
+            source={{ uri: RepairDetailsJson.image }}
+            style={styles.image}
           />
           <View style={styles.repairDetails}>
             <Text style={styles.name}>{RepairDetailsJson.repairer}</Text>
             <Text style={styles.description}>{RepairDetailsJson.type}</Text>
-            
+
             <View style={styles.additionalInfo}>
               <Text style={styles.infoText}>{RepairDetailsJson.date}</Text>
               <Text style={styles.statusText}>{RepairDetailsJson.status}</Text>
@@ -59,6 +62,21 @@ const RepairDetails = () => {
             {RepairDetailsJson.description}
           </Text>
         </View>
+
+        <View style={{ marginBottom: 10 }}>
+          <StarRating
+            onRatingChange={handleRatingChange}
+            initialRating={RepairDetailsJson.Rating}
+          />
+        </View>
+
+        <TextInput
+          style={styles.textArea}
+          placeholder="Leave a comment..."
+          multiline={true}
+          value={comment}
+          onChangeText={setComment}
+        />
 
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
@@ -81,6 +99,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+  },
+  textArea: {
+    height: 100,
+    borderColor: "#CCC",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    textAlignVertical: "top",
+    backgroundColor: "#FFF",
+    marginBottom: 20,
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 24,
   },
   backButtonText: {
     marginLeft: 8,
@@ -174,7 +206,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   detailsButton: {
-    width: '100%',
+    width: "100%",
     padding: 15,
     backgroundColor: "#000",
     borderRadius: 10,
