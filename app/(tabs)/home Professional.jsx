@@ -1,12 +1,10 @@
 import {
   View,
   Text,
-  FlatList,
   ActivityIndicator,
   Image,
-  RefreshControl,
   StyleSheet,
-  Dimensions,
+  TouchableOpacity,
   ScrollView,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
@@ -17,7 +15,7 @@ import CardHeader from "../../components/CardHeader.jsx";
 import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
 import Firestore, { db } from '../../config/firebaseConfig.js'; // Firebase imports
 import { collection, getDocs } from "firebase/firestore";
-
+import { router } from "expo-router";
 
 
 
@@ -89,17 +87,24 @@ const Home = () => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           professionals.map((Professional) => (
+            <TouchableOpacity 
+              key={Professional.id} 
+              style={styles.card} 
+              onPress={() => router.push('/card/repairJobDetails')}
+>
             <View key={Professional.id} style={styles.card}>
               <CardHeader
                 Name={Professional.Name}
                 desc={Professional.Description}
                 loc={Professional.Location}
+
               />
               <Image
                 source={{ uri: '../../assets/images/jobs/photo2.png' }}
                 style={styles.Jobimage}
               />
             </View>
+            </TouchableOpacity>
           ))
         )}
       </ScrollView>

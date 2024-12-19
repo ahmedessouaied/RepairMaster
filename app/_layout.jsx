@@ -53,6 +53,14 @@ const RootLayout = () => {
           name="RepairDetails/RepairDetails"
           options={{ headerShown: true, title: "Repair Details" }}
         />
+        <Stack.Screen
+          name="card/profileDetails"
+          options={{ headerShown: true, title: "Profile Details card" }}
+        />
+        <Stack.Screen
+          name="card/repairJobDetails"
+          options={{ headerShown: true, title: "Repair Job Details" }}
+        />
       </Stack>
     </GlobalProvider>
   );
