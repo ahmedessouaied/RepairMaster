@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  TextInput
 } from "react-native";
 import StarRating from "../../components/StarRating";
 
 const RepairDetails = () => {
+  const [comment, setComment] = useState("");
   const RepairDetailsJson = {
     id: 1,
     repairer: "Ahmed Essouaied",
@@ -20,7 +22,7 @@ const RepairDetails = () => {
     description:
       "Full home electrical system inspection and rewiring of main circuit board",
     image: "https://via.placeholder.com/150",
-    Rating: 3
+    Rating: 3,
   };
 
   const handleRatingChange = (rating) => {
@@ -61,9 +63,20 @@ const RepairDetails = () => {
           </Text>
         </View>
 
-        <View style={{marginBottom:10}}>
-          <StarRating onRatingChange={handleRatingChange}  initialRating={RepairDetailsJson.Rating}/>
+        <View style={{ marginBottom: 10 }}>
+          <StarRating
+            onRatingChange={handleRatingChange}
+            initialRating={RepairDetailsJson.Rating}
+          />
         </View>
+
+        <TextInput
+          style={styles.textArea}
+          placeholder="Leave a comment..."
+          multiline={true}
+          value={comment}
+          onChangeText={setComment}
+        />
 
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
@@ -86,6 +99,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+  },
+  textArea: {
+    height: 100,
+    borderColor: "#CCC",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    textAlignVertical: "top",
+    backgroundColor: "#FFF",
+    marginBottom: 20,
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 24,
   },
   backButtonText: {
     marginLeft: 8,
