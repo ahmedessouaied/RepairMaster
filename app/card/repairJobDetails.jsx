@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+  Alert,
+} from 'react-native';
+import { ArrowLeft, ArrowRight } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 const RepairJobDetails = () => {
   const [bidAmount, setBidAmount] = useState('');
@@ -10,13 +23,13 @@ const RepairJobDetails = () => {
       name: "Sarah Johnson",
       email: "sarah.j@example.com",
       phone: "+1 (555) 234-5678",
-      image: "/api/placeholder/64/64"
+      image: "/api/placeholder/64/64" // You'll need to replace with actual image URL
     },
     repair: {
       title: "Leaking Bathroom Faucet Repair",
       description: "Need urgent repair for a constantly dripping bathroom faucet. The leak has been ongoing for about a week and is getting worse. The faucet is a dual-handle model installed around 5 years ago. Would prefer someone who can come in the next 2-3 days.",
       images: [
-        "/api/placeholder/800/600",
+        "/api/placeholder/800/600", // Replace with actual image URLs
         "/api/placeholder/800/600",
         "/api/placeholder/800/600"
       ],
@@ -37,131 +50,279 @@ const RepairJobDetails = () => {
     );
   };
 
-  const handleBidSubmit = (e) => {
-    e.preventDefault();
-    // Here you would handle the bid submission
-    console.log('Bid submitted:', bidAmount);
+  const handleBidSubmit = () => {
+    Alert.alert('Bid Submitted', `Your bid of $${bidAmount} has been submitted`);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-50">
+    <ScrollView style={styles.container}>
       {/* Owner Profile Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex items-center space-x-4">
-          <img
-            src={jobDetails.owner.image}
-            alt={jobDetails.owner.name}
-            className="w-16 h-16 rounded-full border-2 border-red-500"
+      <View style={styles.card}>
+        <View style={styles.ownerContainer}>
+          <Image
+            source={{ uri: jobDetails.owner.image }}
+            style={styles.ownerImage}
           />
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{jobDetails.owner.name}</h2>
-            <div className="mt-2 space-y-1">
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Email: </span>
+          <View style={styles.ownerInfo}>
+            <Text style={styles.ownerName}>{jobDetails.owner.name}</Text>
+            <View style={styles.contactInfo}>
+              <Text style={styles.contactText}>
+                <Text style={styles.contactLabel}>Email: </Text>
                 {jobDetails.owner.email}
-              </p>
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Phone: </span>
+              </Text>
+              <Text style={styles.contactText}>
+                <Text style={styles.contactLabel}>Phone: </Text>
                 {jobDetails.owner.phone}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
 
       {/* Repair Details Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">{jobDetails.repair.title}</h1>
+      <View style={styles.card}>
+        <Text style={styles.title}>{jobDetails.repair.title}</Text>
         
         {/* Image Gallery */}
-        <div className="relative mb-6">
-          <img
-            src={jobDetails.repair.images[currentImageIndex]}
-            alt={`Repair image ${currentImageIndex + 1}`}
-            className="w-full h-96 object-cover rounded-lg"
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: jobDetails.repair.images[currentImageIndex] }}
+            style={styles.mainImage}
           />
-          <button
-            onClick={handlePrevImage}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white hover:bg-opacity-75"
+          <TouchableOpacity
+            style={[styles.navButton, styles.leftButton]}
+            onPress={handlePrevImage}
           >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={handleNextImage}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white hover:bg-opacity-75"
+            <ArrowLeft color="white" size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.navButton, styles.rightButton]}
+            onPress={handleNextImage}
           >
-            <ArrowRight className="w-6 h-6" />
-          </button>
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <div className="flex space-x-2">
-              {jobDetails.repair.images.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    currentImageIndex === index ? 'bg-white' : 'bg-white bg-opacity-50'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+            <ArrowRight color="white" size={24} />
+          </TouchableOpacity>
+          <View style={styles.pagination}>
+            {jobDetails.repair.images.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.paginationDot,
+                  currentImageIndex === index && styles.activeDot
+                ]}
+              />
+            ))}
+          </View>
+        </View>
 
         {/* Thumbnail Preview */}
-        <div className="flex space-x-2 mb-6 overflow-x-auto">
+        <ScrollView horizontal style={styles.thumbnailContainer}>
           {jobDetails.repair.images.map((image, index) => (
-            <img
+            <TouchableOpacity
               key={index}
-              src={image}
-              alt={`Thumbnail ${index + 1}`}
-              className={`w-20 h-20 object-cover rounded cursor-pointer ${
-                currentImageIndex === index ? 'border-2 border-red-500' : ''
-              }`}
-              onClick={() => setCurrentImageIndex(index)}
-            />
+              onPress={() => setCurrentImageIndex(index)}
+            >
+              <Image
+                source={{ uri: image }}
+                style={[
+                  styles.thumbnail,
+                  currentImageIndex === index && styles.activeThumbnail
+                ]}
+              />
+            </TouchableOpacity>
           ))}
-        </div>
+        </ScrollView>
 
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Description</h3>
-            <p className="mt-2 text-gray-700">{jobDetails.repair.description}</p>
-          </div>
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description}>{jobDetails.repair.description}</Text>
           
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="mr-4">📍 {jobDetails.repair.location}</span>
-            <span>📅 Posted: {jobDetails.repair.postedDate}</span>
-          </div>
-        </div>
-      </div>
+          <View style={styles.metaInfo}>
+            <Text style={styles.metaText}>📍 {jobDetails.repair.location}</Text>
+            <Text style={styles.metaText}>📅 Posted: {jobDetails.repair.postedDate}</Text>
+          </View>
+        </View>
+      </View>
 
       {/* Bid Submission Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Submit Your Bid</h3>
-        <form onSubmit={handleBidSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="bidAmount" className="block text-sm font-medium text-gray-700 mb-2">
-              Your Bid Amount ($)
-            </label>
-            <input
-              type="number"
-              id="bidAmount"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              placeholder="Enter your bid amount"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-red-500 text-white py-3 px-6 rounded-md font-semibold hover:bg-red-600 transition-colors"
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Submit Your Bid</Text>
+        <View style={styles.bidForm}>
+          <Text style={styles.label}>Your Bid Amount ($)</Text>
+          <TextInput
+            style={styles.input}
+            value={bidAmount}
+            onChangeText={setBidAmount}
+            placeholder="Enter your bid amount"
+            keyboardType="numeric"
+          />
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={handleBidSubmit}
           >
-            Submit Bid
-          </button>
-        </form>
-      </div>
-    </div>
+            <Text style={styles.submitButtonText}>Submit Bid</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    padding: 16,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  ownerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ownerImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderColor: '#ef4444',
+  },
+  ownerInfo: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  ownerName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  contactInfo: {
+    marginTop: 8,
+  },
+  contactText: {
+    fontSize: 14,
+    color: '#4b5563',
+    marginVertical: 2,
+  },
+  contactLabel: {
+    fontWeight: '500',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginBottom: 16,
+    height: 300,
+  },
+  mainImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  navButton: {
+    position: 'absolute',
+    top: '50%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  leftButton: {
+    left: 8,
+  },
+  rightButton: {
+    right: 8,
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 16,
+    flexDirection: 'row',
+    alignSelf: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: 'white',
+  },
+  thumbnailContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  activeThumbnail: {
+    borderWidth: 2,
+    borderColor: '#ef4444',
+  },
+  descriptionContainer: {
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  description: {
+    fontSize: 16,
+    color: '#374151',
+    lineHeight: 24,
+  },
+  metaInfo: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  metaText: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginRight: 16,
+  },
+  bidForm: {
+    gap: 12,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: '#ef4444',
+    padding: 16,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default RepairJobDetails;

@@ -6,31 +6,31 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-} from "react-native";
-import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { images } from "../../constants/index.js";
-import SearchInput from "../../components/SearchInput.jsx";
-import CardHeader from "../../components/CardHeader.jsx";
-import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
-import Firestore, { db } from '../../config/firebaseConfig.js'; // Firebase imports
-import { collection, getDocs } from "firebase/firestore";
-import { router } from "expo-router";
-
-
-
-const Home = () => {
+ } from "react-native";
+ import React, { useState, useEffect, useRef } from "react";
+ import { SafeAreaView } from "react-native-safe-area-context";
+ import { images } from "../../constants/index.js";
+ import SearchInput from "../../components/SearchInput.jsx";
+ import CardHeader from "../../components/CardHeader.jsx";
+ import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
+ import Firestore, { db } from '../../config/firebaseConfig.js'; // Firebase imports
+ import { collection, getDocs } from "firebase/firestore";
+ import { router } from "expo-router";
+ 
+ 
+ 
+ const Home = () => {
   
   const [professionals, setProfessionals] = useState([]); // State for professional data
   const [loading, setLoading] = useState(true); // Loading state
-
+ 
   const DomainesImages = [
     { id: "1", src: require("../../assets/images/cards/card1.jpg"), title: "A" },
     { id: "2", src: require("../../assets/images/cards/card2.jpeg"), title: "A" },
     { id: "3", src: require("../../assets/images/cards/card3.jpg"), title: "A" },
     { id: "4", src: require("../../assets/images/cards/card4.jpg"), title: "A" },
   ];
-
+ 
   const fetchProfessionals = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "Professionals"));
@@ -45,11 +45,11 @@ const Home = () => {
       setLoading(false);
     }
   };
-
+ 
   useEffect(() => {
     fetchProfessionals();
   }, []);
-
+ 
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
@@ -71,18 +71,18 @@ const Home = () => {
           </View>
           <SearchInput />
         </View>
-
+ 
         <View>
           <Text
             className="text-2xl font-pmedium text-red-100 text-center">
             Available Domains
           </Text>
         </View>
-
+ 
         <SafeAreaView style={styles.container}>
           <SmoothHorizontalScroll  images={DomainesImages} />
         </SafeAreaView>
-
+ 
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
@@ -91,13 +91,13 @@ const Home = () => {
               key={Professional.id} 
               style={styles.card} 
               onPress={() => router.push('/card/repairJobDetails')}
->
+ >
             <View key={Professional.id} style={styles.card}>
               <CardHeader
                 Name={Professional.Name}
                 desc={Professional.Description}
                 loc={Professional.Location}
-
+ 
               />
               <Image
                 source={{ uri: '../../assets/images/jobs/photo2.png' }}
@@ -110,9 +110,9 @@ const Home = () => {
       </ScrollView>
     </SafeAreaView>
   );
-};
-
-const styles = StyleSheet.create({
+ };
+ 
+ const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: 300,
@@ -147,6 +147,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     resizeMode: "cover",
   },
-});
-
-export default Home;
+ });
+ 
+ export default Home;
