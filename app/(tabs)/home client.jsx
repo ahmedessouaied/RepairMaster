@@ -61,7 +61,7 @@ const Home = () => {
               <Text className="font-pmedium text-sm text-gray-100">
                 Welcome Back
               </Text>
-              <Text className="text-2xl font-psemibold text-black">Lehne nhotou username</Text>
+              <Text className="text-2xl font-psemibold text-black">Lehne nhoto Client</Text>
             </View>
             <View className="mt-2">
               <Image

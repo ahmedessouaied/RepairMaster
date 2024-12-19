@@ -7,6 +7,7 @@ import { images } from '../../constants/index.js';
 import CustomButton from '../../components/CustomButton.jsx';
 import GovernorateDropdown from '../../components/GovernorateDropdown.jsx';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const SignUpProfessional = () => {
   const [form, setForm] = useState({
@@ -15,37 +16,27 @@ const SignUpProfessional = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    governorate: '', // Governorate field
+    governorate: '',
   });
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
 
-  // Password Validation Function
   const validatePassword = (password) => {
     const errors = [];
     
-    // Check minimum length
     if (password.length < 8) {
       errors.push("Password must be at least 8 characters long");
     }
-    
-    // Check for uppercase letter
     if (!/[A-Z]/.test(password)) {
       errors.push("Password must contain at least one uppercase letter");
     }
-    
-    // Check for lowercase letter
     if (!/[a-z]/.test(password)) {
       errors.push("Password must contain at least one lowercase letter");
     }
-    
-    // Check for number
     if (!/[0-9]/.test(password)) {
       errors.push("Password must contain at least one number");
     }
-    
-    // Check for special character
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
       errors.push("Password must contain at least one special character");
     }
@@ -53,26 +44,21 @@ const SignUpProfessional = () => {
     return errors;
   };
 
-  // Firebase Sign-Up Handler
   const submit = async () => {
     const { username, email, Phone_Number, password, confirmPassword, governorate } = form;
 
-    // Reset previous password errors
     setPasswordErrors([]);
 
-    // Check if all fields are filled
     if (!username || !email || !Phone_Number || !password || !confirmPassword || !governorate) {
       Alert.alert('Error', 'Please fill in all the fields.');
       return;
     }
 
-    // Check password match
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match.');
       return;
     }
 
-    // Validate password
     const passwordValidationErrors = validatePassword(password);
     
     if (passwordValidationErrors.length > 0) {
@@ -83,20 +69,52 @@ const SignUpProfessional = () => {
     setisSubmitting(true);
 
     try {
-      const auth = getAuth(); 
+      const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update the display name with the username
-      await updateProfile(user, { 
-        displayName: username,
-        photoURL: JSON.stringify({ governorate, phoneNumber: Phone_Number })
+      // Update the display name with role and username
+      await updateProfile(user, {
+        displayName: JSON.stringify({ role: "professional", username }),
       });
-      console.log('User created successfully:', user);
 
-      router.replace('/home Professional'); // Navigate to Professional Home
+      // Initialize Firestore
+      const db = getFirestore();
+
+      // Create a new document in the Professionals collection with auto-generated ID
+      await addDoc(collection(db, 'Professionals'), {
+        username,
+        email,
+        phoneNumber: Phone_Number,
+        governorate,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: user.uid,
+        role: 'professional',
+        profileComplete: false,
+        status: 'pending', // Professional accounts might need approval
+        rating: 0,
+        totalRatings: 0,
+        completedJobs: 0,
+        specialties: [], // To be filled later
+        availabilityStatus: 'available',
+        verificationStatus: 'unverified'
+      });
+
+      console.log('User created successfully:', user);
+      console.log('Professional document created in Firestore');
+
+      router.replace('/home Professional');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Handle specific Firebase auth errors
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert(
+          'Email Already Registered',
+          'This email address is already associated with an account. Please use a different email or sign in.'
+        );
+      } else {
+        Alert.alert('Error', error.message);
+      }
       console.error('Sign-Up Error:', error);
     } finally {
       setisSubmitting(false);
@@ -144,7 +162,6 @@ const SignUpProfessional = () => {
             keyboardType="email-address"
           />
           
-          {/* Governorate Dropdown Component */}
           <View style={{ marginTop: 20 }}>
             <Text className="text-base font-pmedium text-gray-100 mb-2">
               Governorate

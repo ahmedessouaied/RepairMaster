@@ -5,10 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/FormField';
 import { images } from '../../constants';
 import CustomButton from '../../components/CustomButton';
-import firebase from '../../config/firebaseConfig.js'; // Firebase imports
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth'; // Imoprt for email-password sign-in
+import firebase from '../../config/firebaseConfig.js';
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import * as Google from 'expo-auth-session/providers/google';
 import { useAuthRequest, makeRedirectUri } from 'expo-auth-session';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const SignIn = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -20,8 +21,44 @@ const SignIn = () => {
     scopes: ['profile', 'email'],
   });
 
-  // Redirect URI for Google Sign-In
   const redirectUri = makeRedirectUri({ scheme:'/home' });
+
+  // Function to determine user role and route accordingly
+  const routeBasedOnRole = async (userId) => {
+    try {
+      const db = getFirestore();
+      
+      // Check Clients collection
+      const clientQuery = query(
+        collection(db, 'Clients'),
+        where('userId', '==', userId)
+      );
+      const clientDocs = await getDocs(clientQuery);
+      
+      if (!clientDocs.empty) {
+        router.replace('/home client');
+        return;
+      }
+      
+      // Check Professionals collection
+      const professionalQuery = query(
+        collection(db, 'Professionals'),
+        where('userId', '==', userId)
+      );
+      const professionalDocs = await getDocs(professionalQuery);
+      
+      if (!professionalDocs.empty) {
+        router.replace('/home Professional');
+        return;
+      }
+      
+      // If no role found (shouldn't happen in normal flow)
+      Alert.alert('Error', 'User role not found. Please contact support.');
+    } catch (error) {
+      console.error('Error determining user role:', error);
+      Alert.alert('Error', 'Failed to determine user role. Please try again.');
+    }
+  };
 
   // Handle Google Sign-In
   const handleGoogleSignIn = async () => {
@@ -30,10 +67,9 @@ const SignIn = () => {
         const { id_token } = response.params;
         const credential = GoogleAuthProvider.credential(id_token);
         const auth = getAuth();
-        await signInWithCredential(auth, credential);
-        router.replace('/home');
+        const userCredential = await signInWithCredential(auth, credential);
+        await routeBasedOnRole(userCredential.user.uid);
       } else {
-        // Prompt the user to sign in with Google
         await promptAsync({
           useProxy: true,
           redirectUri,
@@ -55,10 +91,14 @@ const SignIn = () => {
     setisSubmitting(true);
     try {
       const auth = getAuth();
-      await signInWithEmailAndPassword(auth, form.email, form.password);
-      router.replace('/home');
+      const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
+      await routeBasedOnRole(userCredential.user.uid);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      if (error.code === 'auth/invalid-credential') {
+        Alert.alert('Error', 'Invalid email or password. Please try again.');
+      } else {
+        Alert.alert('Error', error.message);
+      }
     } finally {
       setisSubmitting(false);
     }

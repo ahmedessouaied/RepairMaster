@@ -8,6 +8,7 @@ import CustomButton from '../../components/CustomButton.jsx';
 import CustomDropdown from '../../components/CustomDropdown.jsx';
 import firebase from '../../config/firebaseConfig.js'
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const SignUpUser = () => {
   const [form, setForm] = useState({
@@ -24,27 +25,18 @@ const SignUpUser = () => {
   const validatePassword = (password) => {
     const errors = [];
     
-    // Check minimum length
     if (password.length < 8) {
       errors.push("Password must be at least 8 characters long");
     }
-    
-    // Check for uppercase letter
     if (!/[A-Z]/.test(password)) {
       errors.push("Password must contain at least one uppercase letter");
     }
-    
-    // Check for lowercase letter
     if (!/[a-z]/.test(password)) {
       errors.push("Password must contain at least one lowercase letter");
     }
-    
-    // Check for number
     if (!/[0-9]/.test(password)) {
       errors.push("Password must contain at least one number");
     }
-    
-    // Check for special character
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
       errors.push("Password must contain at least one special character");
     }
@@ -56,22 +48,18 @@ const SignUpUser = () => {
   const submit = async () => {
     const { username, email, password, confirmPassword } = form;
 
-    // Reset previous password errors
     setPasswordErrors([]);
 
-    // Check if all fields are filled
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all the fields.');
       return;
     }
 
-    // Check password match
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match.');
       return;
     }
 
-    // Validate password
     const passwordValidationErrors = validatePassword(password);
     
     if (passwordValidationErrors.length > 0) {
@@ -82,17 +70,42 @@ const SignUpUser = () => {
     setisSubmitting(true);
 
     try {
-      const auth = getAuth(); 
+      const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Update the display name with the username
       await updateProfile(user, { displayName: username });
-      console.log('User created successfully:', user);
 
-      router.replace('/home client'); // Navigate to Client Home
+      // Initialize Firestore
+      const db = getFirestore();
+
+      // Create a new document in the Clients collection with auto-generated ID
+      await addDoc(collection(db, 'Clients'), {
+        username,
+        email,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: user.uid,
+        role: 'client',
+        profileComplete: false,
+        status: 'active'
+      });
+
+      console.log('User created successfully:', user);
+      console.log('Client document created in Firestore');
+
+      router.replace('/home client');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Handle specific Firebase auth errors
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert(
+          'Email Already Registered',
+          'This email address is already associated with an account. Please use a different email or sign in.'
+        );
+      } else {
+        Alert.alert('Error', error.message);
+      }
       console.error('Sign-Up Error:', error);
     } finally {
       setisSubmitting(false);
