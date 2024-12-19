@@ -6,12 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
-import { router } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
-
-const { width, height } = Dimensions.get('window');
+import StarRating from "../../components/StarRating";
 
 const RepairDetails = () => {
   const RepairDetailsJson = {
@@ -24,6 +20,11 @@ const RepairDetails = () => {
     description:
       "Full home electrical system inspection and rewiring of main circuit board",
     image: "https://via.placeholder.com/150",
+    Rating: 3
+  };
+
+  const handleRatingChange = (rating) => {
+    console.log(`Review rating updated: ${rating}`);
   };
 
   return (
@@ -31,14 +32,14 @@ const RepairDetails = () => {
       {/* Repair Card */}
       <View style={styles.repairCardContainer}>
         <View style={styles.repairCard}>
-          <Image 
-            source={{ uri: RepairDetailsJson.image }} 
-            style={styles.image} 
+          <Image
+            source={{ uri: RepairDetailsJson.image }}
+            style={styles.image}
           />
           <View style={styles.repairDetails}>
             <Text style={styles.name}>{RepairDetailsJson.repairer}</Text>
             <Text style={styles.description}>{RepairDetailsJson.type}</Text>
-            
+
             <View style={styles.additionalInfo}>
               <Text style={styles.infoText}>{RepairDetailsJson.date}</Text>
               <Text style={styles.statusText}>{RepairDetailsJson.status}</Text>
@@ -58,6 +59,10 @@ const RepairDetails = () => {
           <Text style={styles.jobDescription}>
             {RepairDetailsJson.description}
           </Text>
+        </View>
+
+        <View style={{marginBottom:10}}>
+          <StarRating onRatingChange={handleRatingChange}  initialRating={RepairDetailsJson.Rating}/>
         </View>
 
         {/* Action Buttons */}
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   detailsButton: {
-    width: '100%',
+    width: "100%",
     padding: 15,
     backgroundColor: "#000",
     borderRadius: 10,
