@@ -18,7 +18,7 @@ import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx"
 import Firestore, { db } from '../../config/firebaseConfig.js'; // Firebase imports
 import { collection, getDocs } from "firebase/firestore";
 
-
+-
 
 
 const Home = () => {
