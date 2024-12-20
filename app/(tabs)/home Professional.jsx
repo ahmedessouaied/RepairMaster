@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants/index.js";
 import SearchInput from "../../components/SearchInput.jsx";
 import CardHeader from "../../components/CardHeader.jsx";
-import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
+import HorizontalScrollingCards from "../../components/HorizontalScrollingCards.jsx";
 import { db } from "../../config/firebaseConfig.js"; // Firebase imports
 import { collection, getDocs } from "firebase/firestore";
 import { router } from "expo-router";
@@ -60,11 +60,9 @@ const Home = () => {
     }
   };
 
-
   useEffect(() => {
     fetchProblems();
   }, []);
-
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -76,7 +74,9 @@ const Home = () => {
               <Text className="font-pmedium text-sm text-gray-100">
                 Welcome Back
               </Text>
-              <Text className="text-2xl font-psemibold text-black">Problem Dashboard</Text>
+              <Text className="text-2xl font-psemibold text-black">
+                Problem Dashboard
+              </Text>
             </View>
             <View className="mt-2">
               <Image
@@ -107,10 +107,12 @@ const Home = () => {
             <TouchableOpacity
               key={problem.id}
               style={styles.card}
-              onPress={() => router.push({
-                pathname: '/card/repairJobDetails',
-                params: { problemId: problem.id }
-              })}
+              onPress={() =>
+                router.push({
+                  pathname: "/card/repairJobDetails",
+                  params: { problemId: problem.id },
+                })
+              }
             >
               <View style={styles.card}>
                 <CardHeader
@@ -119,7 +121,11 @@ const Home = () => {
                   loc={problem.localisation}
                 />
                 <Image
-                  source={{ uri: problem.photos?.[0] || "../../assets/images/jobs/photo2.png" }}
+                  source={{
+                    uri:
+                      problem.photos?.[0] ||
+                      "../../assets/images/jobs/photo2.png",
+                  }}
                   style={styles.Jobimage}
                 />
               </View>
@@ -129,9 +135,6 @@ const Home = () => {
       </ScrollView>
     </SafeAreaView>
   );
-};
-
-const styles = StyleSheet.create({
 };
 
 const styles = StyleSheet.create({
@@ -169,10 +172,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     resizeMode: "cover",
   },
-});
-
-export default Home;
-
 });
 
 export default Home;

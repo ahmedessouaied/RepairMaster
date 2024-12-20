@@ -11,9 +11,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants/index.js";
 import SearchInput from "../../components/SearchInput.jsx";
 import CardHeader from "../../components/CardHeader.jsx";
-import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
+import HorizontalScrollingCards from "../../components/HorizontalScrollingCards.jsx";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from '../../config/firebaseConfig.js';
+import { db } from "../../config/firebaseConfig.js";
 import GovernorateDropdown from "../../components/GovernorateDropdown.jsx";
 
 const Home = () => {
@@ -22,10 +22,26 @@ const Home = () => {
   const [selectedGovernorate, setSelectedGovernorate] = useState("");
 
   const DomainesImages = [
-    { id: "1", src: require("../../assets/images/cards/card1.jpg"), title: "A" },
-    { id: "2", src: require("../../assets/images/cards/card2.jpeg"), title: "A" },
-    { id: "3", src: require("../../assets/images/cards/card3.jpg"), title: "A" },
-    { id: "4", src: require("../../assets/images/cards/card4.jpg"), title: "A" },
+    {
+      description: "1",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "2",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "3",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "4",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
   ];
 
   const fetchProfessionals = async (governorate = "") => {
@@ -76,7 +92,7 @@ const Home = () => {
     if (!imageUrl) {
       return (
         <Image
-          source={require('../../assets/images/jobs/photo2.png')}
+          source={require("../../assets/images/jobs/photo2.png")}
           style={styles.Jobimage}
         />
       );
@@ -122,7 +138,7 @@ const Home = () => {
         </View>
 
         <SafeAreaView style={styles.container}>
-          <SmoothHorizontalScroll images={DomainesImages} />
+          <HorizontalScrollingCards cards={DomainesImages} />
         </SafeAreaView>
         <View>
           <Text className="text-2xl font-pmedium text-red-100 text-left pl-5">
@@ -192,11 +208,11 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   noResultsText: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginTop: 20,
-  }
+  },
 });
 
 export default Home;
