@@ -15,6 +15,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,9 @@ const RepairJobDetails = () => {
   const { problemId } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [bidAmount, setBidAmount] = useState('');
+  const [estimatedTime, setEstimatedTime] = useState('');
+  const [interventionDate, setInterventionDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [jobDetails, setJobDetails] = useState(null);
 
@@ -89,8 +93,23 @@ const RepairJobDetails = () => {
     );
   };
 
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setInterventionDate(selectedDate);
+    }
+  };
+
   const handleBidSubmit = () => {
-    Alert.alert('Bid Submitted', `Your bid of ${bidAmount} TND has been submitted`);
+    if (!bidAmount || !estimatedTime || !interventionDate) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    
+    Alert.alert(
+      'Bid Submitted', 
+      `Your bid of ${bidAmount} TND has been submitted\nEstimated time: ${estimatedTime} hours\nIntervention date: ${interventionDate.toLocaleDateString()}`
+    );
   };
 
   if (loading) {
@@ -227,6 +246,36 @@ const RepairJobDetails = () => {
               placeholder="Enter your bid amount"
               keyboardType="numeric"
             />
+
+            <Text style={styles.label}>Estimated Working Time (hours)</Text>
+            <TextInput
+              style={styles.input}
+              value={estimatedTime}
+              onChangeText={setEstimatedTime}
+              placeholder="Enter estimated time"
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Proposed Intervention Date</Text>
+            <TouchableOpacity
+              style={styles.dateInput}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text style={styles.dateText}>
+                {interventionDate.toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={interventionDate}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
+
             <TouchableOpacity
               style={styles.submitButton}
               onPress={handleBidSubmit}
@@ -410,6 +459,17 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 12,
     fontSize: 16,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    padding: 12,
+    backgroundColor: 'white',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#374151',
   },
   submitButton: {
     backgroundColor: '#ef4444',

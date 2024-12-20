@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { images } from "../../constants";
 import {
   View,
   Text,
@@ -7,97 +6,268 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { router } from "expo-router";
-import { db } from "../../config/firebaseConfig.js";
-import { getAuth } from "firebase/auth";
 import PhotoUploadComponent from "../../components/PhotoUploadComponent";
+import { auth } from "../../config/firebaseConfig.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 const Profile = () => {
   const [username, setUsername] = useState("user");
-  const [profileImage_uri, setProfileImage_uri] = useState("https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg");
-  const icons = {upload: ""}
-  
-  const auth = getAuth();
+  const [profileImage_uri, setProfileImage_uri] = useState(
+    "https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg"
+  );
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [totalActive, setTotalActive] = useState(0);
+  const [totalCompleted, setTotalCompleted] = useState(0);
+  const [problemsDocs, setProblemsDocs] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
+  const fetchData = async () => {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        console.log("No user ID found");
+        return;
+      }
 
-  const handlePhotoUploaded = (cloudinaryUrls) => {
-    console.log(cloudinaryUrls);
+      console.log("Fetching data for user:", userId);
+      const db = getFirestore();
+
+      // Check Clients collection
+      const clientQuery = query(
+        collection(db, "Clients"),
+        where("userId", "==", userId)
+      );
+
+      const clientSnapshot = await getDocs(clientQuery);
+      console.log("Client documents found:", clientSnapshot.size);
+
+      if (!clientSnapshot.empty) {
+        const userData = clientSnapshot.docs[0].data();
+        console.log("User data:", userData);
+        setUsername(userData.username || "user");
+        if (userData.Profile_pic) {
+          setProfileImage_uri(userData.Profile_pic);
+        }
+      }
+
+      // Check Clients Problems
+      const problemsQuery = query(
+        collection(db, "Problems"),
+        where("clientId", "==", userId)
+      );
+
+      const problemsSnapshot = await getDocs(problemsQuery);
+      console.log("Problems found:", problemsSnapshot.size);
+
+      const problems = problemsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setProblemsDocs(problems);
+      setTotalPosts(problems.length);
+      setTotalActive(
+        problems.filter(
+          (doc) => doc.status === "on cours" || doc.status === "on hold"
+        ).length
+      );
+      setTotalCompleted(
+        problems.filter((doc) => doc.status === "completed").length
+      );
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
-    useEffect(() => {
-      setUsername(auth.currentUser.displayName);
-      const img = auth.currentUser.Profile_pic;
-      if (img != "") {
-        setProfileImage_uri(img);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchData();
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user && isMounted) {
+        console.log("User is signed in, userId:", user.uid);
+        fetchData();
+      } else {
+        console.log("No user signed in");
       }
-    }, []);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+  const handlePhotoUploaded = async (cloudinaryUrls) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      console.log("No user ID found");
+      return;
+    }
+
+    console.log("Updating profile picture for user:", userId);
+
+    // Firestore setup
+    const db = getFirestore();
+    const clientQuery = query(
+      collection(db, "Clients"),
+      where("userId", "==", userId)
+    );
+
+    const clientSnapshot = await getDocs(clientQuery);
+    if (clientSnapshot.empty) {
+      console.log("No client found for this user");
+      return;
+    }
+
+    // Update Firestore with the new profile picture URL
+    const clientDoc = clientSnapshot.docs[0]; // Assuming one match
+    console.log(cloudinaryUrls);
+    await updateDoc(doc(db, "Clients", clientDoc.id), {
+      Profile_pic: cloudinaryUrls[0],
+    });
+  };
+
+  const renderProblemCard = (problem) => {
+    if (!problem) return null;
+
+    return (
+      <View
+        key={problem.id}
+        style={{
+          backgroundColor: "#e5e5e5",
+          padding: 15,
+          marginBottom: 5,
+          borderRadius: 15,
+        }}
+      >
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>{problem.title || "Untitled"}</Text>
+          <Text style={styles.cardSubtitle}>
+            {problem.category || "No Category"}
+          </Text>
+          <Text style={styles.cardSubtitle}>
+            {problem.description || "No description"}
+          </Text>
+        </View>
+        <View style={styles.card}>
+          <View style={styles.cardBody}>
+            <View style={styles.statusBadgeContainer}>
+              <Text
+                style={
+                  problem.status === "completed"
+                    ? styles.completedBadge
+                    : styles.activeBadge
+                }
+              >
+                {problem.status || "Unknown"}
+              </Text>
+            </View>
+            {problem.offers && (
+              <Text style={styles.cardOffers}>
+                {problem.offers.length} offers received
+              </Text>
+            )}
+          </View>
+          <TouchableOpacity
+            style={styles.detailsButton}
+            onPress={() => {
+              if (!problem.id) return;
+              router.push({
+                pathname:
+                  problem.status === "completed"
+                    ? "/profileInfo/repairDetails"
+                    : "/profileInfo/offersReceived",
+                    params: {
+                      id: 1,
+                      repairer: "Ahmed Essouaied",
+                      type: "Electrical Wiring Repair",
+                      date: "12 Nov 2023",
+                      cost: "80 DT",
+                      status: "Completed",
+                      description:
+                        "Full home electrical system inspection and rewiring of main circuit board",
+                      image: "https://via.placeholder.com/150",
+                      Rating: 3,
+                    },
+              });
+            }}
+          >
+            <Text style={styles.detailsButtonText}>
+              {problem.status === "completed" ? "View Details" : "View Offers"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
-    <SafeAreaView style={[styles.container, { marginTop: 20 }]}>
-      <View style={styles.profileSection}>
-      {/* <PhotoUploadComponent icons={icons} styles={styles} onPhotoUpload={handlePhotoUploaded} photoSelectionLimit={1} /> */}
-        
-        
-        <Image source={{ uri: profileImage_uri, width: 100,
-    height: 100, }} style={styles.profileImage} />
-        <Text style={styles.profileName}>{username}</Text>
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>2</Text>
-            <Text style={styles.statLabel}>Total Posts</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>1</Text>
-            <Text style={styles.statLabel}>Active Posts</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>1</Text>
-            <Text style={styles.statLabel}>Completed Jobs</Text>
-          </View>
-        </View>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#FF0000"]} // Android
+            tintColor="#FF0000" // iOS
+          />
+        }
+      >
+        <View style={styles.profileSection}>
+          <PhotoUploadComponent
+            icons={{ upload: "" }}
+            styles={styles}
+            onPhotoUpload={handlePhotoUploaded}
+            photoSelectionLimit={1}
+            uploadedphotostyle={styles.upload_photo}
+          >
+            <Image
+              source={{ uri: profileImage_uri }}
+              style={styles.upload_photo}
+            />
+          </PhotoUploadComponent>
 
-      {/* Job Cards */}
-      <View style={styles.cardContainer}>
-        {/* Card 1 */}
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Leaky Faucet</Text>
-          <Text style={styles.cardSubtitle}>Plumbery</Text>
-        </View>
-        <View style={styles.card}>
-          <View style={styles.cardBody}>
-            <View style={styles.statusBadgeContainer}>
-              <Text style={styles.activeBadge}>Active</Text>
+          <Text style={styles.profileName}>{username}</Text>
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{totalPosts}</Text>
+              <Text style={styles.statLabel}>Total Posts</Text>
             </View>
-            <Text style={styles.cardOffers}>3 offers received</Text>
-          </View>
-          <TouchableOpacity style={styles.detailsButton}>
-            <TouchableOpacity
-              onPress={() => router.push({pathname: "/profileInfo/OffersReceived"})}
-            >
-              <Text style={styles.detailsButtonText}>View Details</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </View>
-
-        {/* Card 2 */}
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Light Problem</Text>
-          <Text style={styles.cardSubtitle}>Electricity</Text>
-        </View>
-        <View style={styles.card}>
-          <View style={styles.cardBody}>
-            <View style={styles.statusBadgeContainer}>
-              <Text style={styles.completedBadge}>Completed</Text>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{totalActive}</Text>
+              <Text style={styles.statLabel}>Active Posts</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{totalCompleted}</Text>
+              <Text style={styles.statLabel}>Completed Jobs</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.detailsButton}
-              onPress={() => router.push({pathname: "/profileInfo/repairDetails"})}>
-            <Text style={styles.detailsButtonText}>View Details</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+
+        <View style={styles.cardContainer}>
+          {Array.isArray(problemsDocs) &&
+            problemsDocs.reverse().map(renderProblemCard)}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -105,12 +275,17 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5", // Adjust background as needed
+    backgroundColor: "#F5F5F5",
+    marginTop: 20,
   },
   profileSection: {
     alignItems: "center",
     marginBottom: 24,
     padding: 24,
+  },
+  photoUpload: {
+    width: 80,
+    height: 80,
   },
   upload_photo: {
     width: 80,

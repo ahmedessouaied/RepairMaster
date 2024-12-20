@@ -5,8 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/FormField';
 import { images } from '../../constants';
 import CustomButton from '../../components/CustomButton';
-import firebase from '../../config/firebaseConfig.js';
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import app, { auth } from '../../config/firebaseConfig.js';
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  signInWithCredential 
+} from 'firebase/auth';
 import * as Google from 'expo-auth-session/providers/google';
 import { useAuthRequest, makeRedirectUri } from 'expo-auth-session';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
@@ -26,7 +30,7 @@ const SignIn = () => {
   // Function to determine user role and route accordingly
   const routeBasedOnRole = async (userId) => {
     try {
-      const db = getFirestore();
+      const db = getFirestore(app);
       
       // Check Clients collection
       const clientQuery = query(
@@ -52,7 +56,6 @@ const SignIn = () => {
         return;
       }
       
-      // If no role found (shouldn't happen in normal flow)
       Alert.alert('Error', 'User role not found. Please contact support.');
     } catch (error) {
       console.error('Error determining user role:', error);
@@ -66,7 +69,6 @@ const SignIn = () => {
       if (response?.type === 'success') {
         const { id_token } = response.params;
         const credential = GoogleAuthProvider.credential(id_token);
-        const auth = getAuth();
         const userCredential = await signInWithCredential(auth, credential);
         await routeBasedOnRole(userCredential.user.uid);
       } else {
@@ -90,7 +92,6 @@ const SignIn = () => {
 
     setisSubmitting(true);
     try {
-      const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
       await routeBasedOnRole(userCredential.user.uid);
     } catch (error) {

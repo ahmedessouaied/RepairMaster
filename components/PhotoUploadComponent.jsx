@@ -11,7 +11,13 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 
-const PhotoUploadComponent = ({ icons, styles, onPhotoUpload, photoSelectionLimit = 10 }) => {
+const PhotoUploadComponent = ({
+  children,
+  styles,
+  onPhotoUpload,
+  photoSelectionLimit = 10,
+  uploadedphotostyle = PhotoUpload_styles.photo
+}) => {
   const [photoUris, setPhotoUris] = useState([]);
   const [cloudinaryUrls, setCloudinaryUrls] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -135,7 +141,7 @@ const PhotoUploadComponent = ({ icons, styles, onPhotoUpload, photoSelectionLimi
                 <Image
                   key={index}
                   source={{ uri }}
-                  style={PhotoUpload_styles.photo}
+                  style={uploadedphotostyle}
                 />
               ))}
             </ScrollView>
@@ -145,10 +151,9 @@ const PhotoUploadComponent = ({ icons, styles, onPhotoUpload, photoSelectionLimi
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
         ) : (
-          <Image
-            source={icons.upload}
-            style={PhotoUpload_styles.upload_photo}
-          />
+          <View>
+            {children}
+          </View>
         )}
       </View>
     </TouchableOpacity>
@@ -185,7 +190,7 @@ const PhotoUpload_styles = StyleSheet.create({
   photo: {
     width: 75,
     height: 75,
-    margin: 5
+    margin: 5,
   },
   upload_photo: {
     width: 50,

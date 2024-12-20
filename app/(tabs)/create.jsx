@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Image,
 } from "react-native";
 import { icons } from "../../constants";
 import PhotoUploadComponent from "../../components/PhotoUploadComponent";
@@ -31,7 +32,13 @@ const Create = () => {
   };
 
   const handleSubmit = async () => {
-    if (!title || !selectedCategory || !selectedGovernorate || !description || !number) {
+    if (
+      !title ||
+      !selectedCategory ||
+      !selectedGovernorate ||
+      !description ||
+      !number
+    ) {
       Alert.alert("Error", "Please fill in all required fields");
       return;
     }
@@ -51,24 +58,20 @@ const Create = () => {
 
       await addDoc(collection(db, "Problems"), problemData);
 
-      Alert.alert(
-        "Success",
-        "Your problem has been submitted successfully",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              // Reset form
-              setTitle("");
-              setSelectedCategory("");
-              setSelectedGovernorate("");
-              setDescription("");
-              setNumber("");
-              setPhotos([]);
-            },
+      Alert.alert("Success", "Your problem has been submitted successfully", [
+        {
+          text: "OK",
+          onPress: () => {
+            // Reset form
+            setTitle("");
+            setSelectedCategory("");
+            setSelectedGovernorate("");
+            setDescription("");
+            setNumber("");
+            setPhotos([]);
           },
-        ]
-      );
+        },
+      ]);
     } catch (error) {
       Alert.alert("Error", "Failed to submit problem: " + error.message);
     }
@@ -86,11 +89,9 @@ const Create = () => {
       />
 
       {/* Keep the PhotoUploadComponent unchanged */}
-      <PhotoUploadComponent
-        icons={icons}
-        styles={styles}
-        onPhotoUpload={handlePhotoUploaded}
-      />
+      <PhotoUploadComponent styles={styles} onPhotoUpload={handlePhotoUploaded}>
+        <Image source={icons.upload} style={styles.upload_photo} />{" "}
+      </PhotoUploadComponent>
 
       <View style={styles.dropdownSection}>
         <Text style={styles.label}>Choose Category</Text>
@@ -183,7 +184,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#CCC",
     borderRadius: 8,
-    paddingHorizontal: 10,
     backgroundColor: "#FFF",
   },
   dropdownText: {
@@ -246,6 +246,10 @@ const styles = StyleSheet.create({
   closeModalButtonText: {
     color: "#FFF",
     fontWeight: "bold",
+  },
+  upload_photo: {
+    width: 50,
+    height: 50,
   },
 });
 export default Create;

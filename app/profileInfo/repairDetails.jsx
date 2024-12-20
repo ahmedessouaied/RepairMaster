@@ -6,11 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  TextInput
+  TextInput,
+  ScrollView,
+  ChevronLeft,
 } from "react-native";
 import StarRating from "../../components/StarRating";
 
-const repairDetails = () => {
+const repairDetails = ({ route }) => {
+  console.log(route)
+  // const RepairDetailsJson  = route.params; // Extract parameters from route
   const [comment, setComment] = useState("");
   const RepairDetailsJson = {
     id: 1,
@@ -30,62 +34,66 @@ const repairDetails = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Repair Card */}
-      <View style={styles.repairCardContainer}>
-        <View style={styles.repairCard}>
-          <Image
-            source={{ uri: RepairDetailsJson.image }}
-            style={styles.image}
-          />
-          <View style={styles.repairDetails}>
-            <Text style={styles.name}>{RepairDetailsJson.repairer}</Text>
-            <Text style={styles.description}>{RepairDetailsJson.type}</Text>
+    <ScrollView>
+      <SafeAreaView style={styles.container}>
+        {/* Repair Card */}
+        <View style={styles.repairCardContainer}>
+          <View style={styles.repairCard}>
+            <Image
+              source={{ uri: RepairDetailsJson.image }}
+              style={styles.image}
+            />
+            <View style={styles.repairDetails}>
+              <Text style={styles.name}>{RepairDetailsJson.repairer}</Text>
+              <Text style={styles.description}>{RepairDetailsJson.type}</Text>
 
-            <View style={styles.additionalInfo}>
-              <Text style={styles.infoText}>{RepairDetailsJson.date}</Text>
-              <Text style={styles.statusText}>{RepairDetailsJson.status}</Text>
+              <View style={styles.additionalInfo}>
+                <Text style={styles.infoText}>{RepairDetailsJson.date}</Text>
+                <Text style={styles.statusText}>
+                  {RepairDetailsJson.status}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* Cost Section */}
-        <View style={styles.costContainer}>
-          <Text style={styles.costLabel}>Total Cost</Text>
-          <Text style={styles.price}>{RepairDetailsJson.cost}</Text>
-        </View>
+          {/* Cost Section */}
+          <View style={styles.costContainer}>
+            <Text style={styles.costLabel}>Total Cost</Text>
+            <Text style={styles.price}>{RepairDetailsJson.cost}</Text>
+          </View>
 
-        {/* Job Description */}
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionTitle}>Job Description</Text>
-          <Text style={styles.jobDescription}>
-            {RepairDetailsJson.description}
-          </Text>
-        </View>
+          {/* Job Description */}
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.descriptionTitle}>Job Description</Text>
+            <Text style={styles.jobDescription}>
+              {RepairDetailsJson.description}
+            </Text>
+          </View>
 
-        <View style={{ marginBottom: 10 }}>
-          <StarRating
-            onRatingChange={handleRatingChange}
-            initialRating={RepairDetailsJson.Rating}
+          <View style={{ marginBottom: 10 }}>
+            <StarRating
+              onRatingChange={handleRatingChange}
+              initialRating={RepairDetailsJson.Rating}
+            />
+          </View>
+
+          <TextInput
+            style={styles.textArea}
+            placeholder="Leave a comment..."
+            multiline={true}
+            value={comment}
+            onChangeText={setComment}
           />
-        </View>
 
-        <TextInput
-          style={styles.textArea}
-          placeholder="Leave a comment..."
-          multiline={true}
-          value={comment}
-          onChangeText={setComment}
-        />
-
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.detailsButton}>
-            <Text style={styles.buttonText}>View Invoice</Text>
-          </TouchableOpacity>
+          {/* Action Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.detailsButton}>
+              <Text style={styles.buttonText}>View Invoice</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -216,6 +224,23 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 16,
     fontWeight: "600",
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 45,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  backButton: {
+    marginRight: 12,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#111827",
   },
 });
 
