@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +16,7 @@ import HorizontalScrollingCards from "../../components/HorizontalScrollingCards.
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig.js";
 import GovernorateDropdown from "../../components/GovernorateDropdown.jsx";
+import { router } from "expo-router";
 
 const Home = () => {
   const [professionals, setProfessionals] = useState([]);
@@ -117,7 +119,7 @@ const Home = () => {
                 Welcome Back
               </Text>
               <Text className="text-2xl font-psemibold text-black">
-                Lehne nhoto Client
+                Dear Client
               </Text>
             </View>
             <View className="mt-2">
@@ -163,14 +165,24 @@ const Home = () => {
               </Text>
             ) : (
               professionals.map((Professional) => (
-                <View key={Professional.id} style={styles.card}>
-                  <CardHeader
-                    Name={Professional.username}
-                    desc={Professional.description}
-                    loc={Professional.governorate}
-                  />
-                  {renderProfessionalImage(Professional.imageUrl)}
-                </View>
+                <TouchableOpacity
+                  key={Professional.id}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/card/profileDetails",
+                      params: { professionalId: Professional.id },
+                    })
+                  }
+                >
+                  <View style={styles.card}>
+                    <CardHeader
+                      Name={Professional.username}
+                      desc={Professional.description}
+                      loc={Professional.governorate}
+                    />
+                    {renderProfessionalImage(Professional.imageUrl)}
+                  </View>
+                </TouchableOpacity>
               ))
             )}
           </View>

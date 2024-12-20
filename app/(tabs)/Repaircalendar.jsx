@@ -9,12 +9,79 @@ const RepairCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Start with January 2025
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Static repair job data for January 2025
+  // Static repair job data
   const staticEvents = useMemo(() => [
+    // December 2024
+    {
+      id: '7',
+      title: 'Fix leaky faucet',
+      date: new Date(2024, 11, 6), // December 6, 2024
+      price: 75.00,
+      estimatedDuration: 1.5,
+      description: 'Repair a leaky faucet in the kitchen.',
+    },
+    {
+      id: '8',
+      title: 'Install new light fixture',
+      date: new Date(2024, 11, 19), // December 19, 2024
+      price: 120.00,
+      estimatedDuration: 2,
+      description: 'Install a new ceiling light fixture in the living room.',
+    },
+    {
+      id: '9',
+      title: 'Repair drywall',
+      date: new Date(2024, 11, 13), // December 13, 2024
+      price: 200.00,
+      estimatedDuration: 3,
+      description: 'Patch and paint a hole in the drywall.',
+    },
+    {
+      id: '10',
+      title: 'Unclog drain',
+      date: new Date(2024, 11, 2), // December 2, 2024
+      price: 90.00,
+      estimatedDuration: 1,
+      description: 'Unclog a bathroom sink drain.',
+    },
+    {
+      id: '11',
+      title: 'Fix running toilet',
+      date: new Date(2024, 11, 28), // December 28, 2024
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    {
+      id: '12',
+      title: 'Repair drywall',
+      date: new Date(2024, 11, 31), // December 31, 2024
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    {
+      id: '13',
+      title: 'Paint Bedroom',
+      date: new Date(2024, 11, 15), // December 15, 2024
+      price: 350.00,
+      estimatedDuration: 8,
+      description: 'Repaint the master bedroom, including walls and trim.',
+    },
+    {
+      id: '14',
+      title: 'Fix Squeaky Door',
+      date: new Date(2024, 11, 22), // December 22, 2024
+      price: 40.00,
+      estimatedDuration: 0.5,
+      description: 'Fix a squeaky door hinge in the hallway.',
+    },
+
+    // January 2025
     {
       id: '1',
       title: 'Fix leaky faucet',
-      date: new Date(2025, 0, 6), // January 5, 2025
+      date: new Date(2025, 0, 6), // January 6, 2025
       price: 75.00,
       estimatedDuration: 1.5,
       description: 'Repair a leaky faucet in the kitchen.',
@@ -30,7 +97,7 @@ const RepairCalendar = () => {
     {
       id: '3',
       title: 'Repair drywall',
-      date: new Date(2025, 0, 13), // January 19, 2025
+      date: new Date(2025, 0, 13), // January 13, 2025
       price: 200.00,
       estimatedDuration: 3,
       description: 'Patch and paint a hole in the drywall.',
@@ -38,7 +105,7 @@ const RepairCalendar = () => {
     {
       id: '4',
       title: 'Unclog drain',
-      date: new Date(2025, 0, 23), // January 26, 2025
+      date: new Date(2025, 0, 23), // January 23, 2025
       price: 90.00,
       estimatedDuration: 1,
       description: 'Unclog a bathroom sink drain.',
@@ -59,55 +126,48 @@ const RepairCalendar = () => {
       estimatedDuration: 1,
       description: 'Fix a constantly running toilet.',
     },
+
+    // February 2025
     {
-      id: '7',
-      title: 'Fix leaky faucet',
-      date: new Date(2024, 11, 6), // January 5, 2025
-      price: 75.00,
-      estimatedDuration: 1.5,
-      description: 'Repair a leaky faucet in the kitchen.',
-    },
-    {
-      id: '8',
-      title: 'Install new light fixture',
-      date: new Date(2025, 11, 19), // January 10, 2025
-      price: 120.00,
+      id: '15',
+      title: 'Assemble Furniture',
+      date: new Date(2025, 1, 5), // February 5, 2025
+      price: 100.00,
       estimatedDuration: 2,
-      description: 'Install a new ceiling light fixture in the living room.',
+      description: 'Assemble a new bookshelf and desk.',
     },
     {
-      id: '9',
-      title: 'Repair drywall',
-      date: new Date(2025, 11, 13), // January 19, 2025
-      price: 200.00,
-      estimatedDuration: 3,
-      description: 'Patch and paint a hole in the drywall.',
+      id: '16',
+      title: 'Repair Leaky Roof',
+      date: new Date(2025, 1, 10), // February 10, 2025
+      price: 500.00,
+      estimatedDuration: 4,
+      description: 'Locate and repair a leak in the roof.',
     },
     {
-      id: '10',
-      title: 'Unclog drain',
-      date: new Date(2025, 11, 2), // January 26, 2025
-      price: 90.00,
+      id: '17',
+      title: 'Replace Light Bulbs',
+      date: new Date(2025, 1, 14), // February 14, 2025
+      price: 30.00,
+      estimatedDuration: 0.5,
+      description: 'Replace all light bulbs in the house with energy-efficient LEDs.',
+    },
+    {
+      id: '18',
+      title: 'Fix Broken Window',
+      date: new Date(2025, 1, 24), // February 24, 2025
+      price: 180.00,
+      estimatedDuration: 2.5,
+      description: 'Replace a broken window pane in the living room.',
+    },
+    {
+      id: '19',
+      title: 'Install Smoke Detectors',
+      date: new Date(2025, 1, 27), // February 27, 2025
+      price: 80.00,
       estimatedDuration: 1,
-      description: 'Unclog a bathroom sink drain.',
+      description: 'Install new smoke detectors in all bedrooms and hallways.',
     },
-    {
-      id: '11',
-      title: 'Fix running toilet',
-      date: new Date(2025, 11, 28), // January 26, 2025
-      price: 60.00,
-      estimatedDuration: 1,
-      description: 'Fix a constantly running toilet.',
-    },
-    {
-      id: '12',
-      title: 'Repair drywall',
-      date: new Date(2025, 11, 31), // January 21, 2025
-      price: 60.00,
-      estimatedDuration: 1,
-      description: 'Fix a constantly running toilet.',
-    },
-    
   ], []);
 
   // Calculate calendar days
