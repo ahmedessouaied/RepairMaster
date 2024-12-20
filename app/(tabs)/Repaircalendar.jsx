@@ -1,66 +1,116 @@
-import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { db } from '../../config/firebaseConfig';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet, Dimensions, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const DAY_WIDTH = (SCREEN_WIDTH - 40) / 7;
 
 const RepairCalendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState([]);
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Start with January 2025
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Function to fetch events - optimized with onSnapshot for real-time updates
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // Static repair job data for January 2025
+  const staticEvents = useMemo(() => [
+    {
+      id: '1',
+      title: 'Fix leaky faucet',
+      date: new Date(2025, 0, 6), // January 5, 2025
+      price: 75.00,
+      estimatedDuration: 1.5,
+      description: 'Repair a leaky faucet in the kitchen.',
+    },
+    {
+      id: '2',
+      title: 'Install new light fixture',
+      date: new Date(2025, 0, 10), // January 10, 2025
+      price: 120.00,
+      estimatedDuration: 2,
+      description: 'Install a new ceiling light fixture in the living room.',
+    },
+    {
+      id: '3',
+      title: 'Repair drywall',
+      date: new Date(2025, 0, 13), // January 19, 2025
+      price: 200.00,
+      estimatedDuration: 3,
+      description: 'Patch and paint a hole in the drywall.',
+    },
+    {
+      id: '4',
+      title: 'Unclog drain',
+      date: new Date(2025, 0, 23), // January 26, 2025
+      price: 90.00,
+      estimatedDuration: 1,
+      description: 'Unclog a bathroom sink drain.',
+    },
+    {
+      id: '5',
+      title: 'Fix running toilet',
+      date: new Date(2025, 0, 26), // January 26, 2025
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    {
+      id: '6',
+      title: 'Repair drywall',
+      date: new Date(2025, 0, 21), // January 21, 2025
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    {
+      id: '7',
+      title: 'Fix leaky faucet',
+      date: new Date(2024, 11, 6), // January 5, 2025
+      price: 75.00,
+      estimatedDuration: 1.5,
+      description: 'Repair a leaky faucet in the kitchen.',
+    },
+    {
+      id: '8',
+      title: 'Install new light fixture',
+      date: new Date(2025, 11, 19), // January 10, 2025
+      price: 120.00,
+      estimatedDuration: 2,
+      description: 'Install a new ceiling light fixture in the living room.',
+    },
+    {
+      id: '9',
+      title: 'Repair drywall',
+      date: new Date(2025, 11, 13), // January 19, 2025
+      price: 200.00,
+      estimatedDuration: 3,
+      description: 'Patch and paint a hole in the drywall.',
+    },
+    {
+      id: '10',
+      title: 'Unclog drain',
+      date: new Date(2025, 11, 2), // January 26, 2025
+      price: 90.00,
+      estimatedDuration: 1,
+      description: 'Unclog a bathroom sink drain.',
+    },
+    {
+      id: '11',
+      title: 'Fix running toilet',
+      date: new Date(2025, 11, 28), // January 26, 2025
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    {
+      id: '12',
+      title: 'Repair drywall',
+      date: new Date(2025, 11, 31), // January 21, 2025
+      price: 60.00,
+      estimatedDuration: 1,
+      description: 'Fix a constantly running toilet.',
+    },
+    
+  ], []);
 
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      setError('No authenticated user found');
-      setLoading(false);
-      return;
-    }
-
-    const professionalId = currentUser.uid;
-    const repairOffersRef = collection(db, 'Offers');
-    const q = query(
-      repairOffersRef,
-      where('professionalId', '==', professionalId), // Use the correct field name
-      where('status', '==', true)
-    );
-
-    // Using onSnapshot for real-time updates
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedEvents = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate(),
-      }));
-      setEvents(fetchedEvents);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching events:', error);
-      setError('Failed to fetch repair events');
-      setLoading(false);
-    });
-
-    // Cleanup the listener when the component unmounts
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
-  // Calculate calendar days - optimized with useMemo
+  // Calculate calendar days
   const calendarDays = useMemo(() => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -77,12 +127,12 @@ const RepairCalendar = () => {
     return days;
   }, [currentDate]);
 
-  // Get events for a specific date - optimized by pre-filtering events
+  // Get events for a specific date
   const getEventsForDate = useCallback((date) => {
-    return events.filter(event => {
+    return staticEvents.filter(event => {
       return event.date.toDateString() === date.toDateString();
     });
-  }, [events]);
+  }, [staticEvents]);
 
   // Change the current month
   const changeMonth = (increment) => {
@@ -121,28 +171,6 @@ const RepairCalendar = () => {
       setSelectedEvent(eventsOnDay[0]);
     }
   }, [getEventsForDate]);
-
-  // Loading state
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <ActivityIndicator size="large" color="#b91c1c" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   // Main render
   return (
@@ -201,7 +229,6 @@ const RepairCalendar = () => {
                   ]}>
                     {formatDate(day)}
                   </Text>
-                  {/* Removed the separate eventIndicator - styling handled by dayCell and dayNumber */}
                 </TouchableOpacity>
               );
             })}
@@ -265,7 +292,6 @@ const RepairCalendar = () => {
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -420,7 +446,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   eventDay: {
-    backgroundColor: '#fee2e2', // Highlight color for days with events
+    backgroundColor: '#ffdddd', // Highlight color for days with events, more noticeable now
   },
   eventDayText: {
     color: '#b91c1c', // Text color for days with events
