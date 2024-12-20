@@ -22,10 +22,26 @@ const Home = () => {
   const [loading, setLoading] = useState(true); // Loading state
 
   const DomainesImages = [
-    { id: "1", src: require("../../assets/images/cards/card1.jpg"), title: "A" },
-    { id: "2", src: require("../../assets/images/cards/card2.jpeg"), title: "A" },
-    { id: "3", src: require("../../assets/images/cards/card3.jpg"), title: "A" },
-    { id: "4", src: require("../../assets/images/cards/card4.jpg"), title: "A" },
+    {
+      description: "1",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "2",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "3",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "4",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
   ];
 
   // Fetch problems from Firebase
@@ -44,9 +60,11 @@ const Home = () => {
     }
   };
 
+
   useEffect(() => {
     fetchProblems();
   }, []);
+
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -73,12 +91,12 @@ const Home = () => {
 
         {/* Domains Section */}
         <View>
-          <Text className="text-2xl font-pmedium text-red-100 text-center">
+          <Text className="text-2xl font-pmedium text-red-100">
             Available Domains
           </Text>
         </View>
         <SafeAreaView style={styles.container}>
-          <SmoothHorizontalScroll images={DomainesImages} />
+          <HorizontalScrollingCards cards={DomainesImages} />
         </SafeAreaView>
 
         {/* Problems List */}
@@ -111,6 +129,9 @@ const Home = () => {
       </ScrollView>
     </SafeAreaView>
   );
+};
+
+const styles = StyleSheet.create({
 };
 
 const styles = StyleSheet.create({
@@ -148,6 +169,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     resizeMode: "cover",
   },
+});
+
+export default Home;
+
 });
 
 export default Home;
