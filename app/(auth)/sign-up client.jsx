@@ -16,6 +16,7 @@ const SignUpUser = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    Profile_pic: '',
   });
 
   const [isSubmitting, setisSubmitting] = useState(false);
@@ -89,7 +90,8 @@ const SignUpUser = () => {
         userId: user.uid,
         role: 'client',
         profileComplete: false,
-        status: 'active'
+        status: 'active',
+        Profile_pic: "",
       });
 
       console.log('User created successfully:', user);
