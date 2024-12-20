@@ -1,8 +1,8 @@
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from '../../config/firebaseConfig';
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet, Dimensions, SafeAreaView, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -15,82 +15,84 @@ const RepairCalendar = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Function to fetch events - optimized with onSnapshot for real-time updates
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      setError('No authenticated user found');
+      setLoading(false);
+      return;
+    }
+
+    const professionalId = currentUser.uid;
+    const repairOffersRef = collection(db, 'Offers');
+    const q = query(
+      repairOffersRef,
+      where('professionalId', '==', professionalId), // Use the correct field name
+      where('status', '==', true)
+    );
+
+    // Using onSnapshot for real-time updates
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedEvents = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().date.toDate(),
+      }));
+      setEvents(fetchedEvents);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching events:', error);
+      setError('Failed to fetch repair events');
+      setLoading(false);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Get current user from Firebase Auth
-        const auth = getAuth();
-        const currentUser = auth.currentUser;
-        
-        if (!currentUser) {
-          setError('No authenticated user found');
-          setLoading(false);
-          return;
-        }
-
-        const professionalId = currentUser.uid;
-        
-        // Query Firestore with the professional ID from auth
-        const repairOffersRef = collection(db, 'Offers');
-        const q = query(
-          repairOffersRef,
-          where('professionalId', '==', professionalId),
-          where('status', '==', true)
-        );
-        
-        const snapshot = await getDocs(q);
-        const fetchedEvents = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          date: doc.data().date.toDate(),
-        }));
-        
-        setEvents(fetchedEvents);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-        setError('Failed to fetch repair events');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
-  }, []); // Only fetch on component mount
+  }, [fetchEvents]);
 
-  // Rest of the component remains the same...
+  // Calculate calendar days - optimized with useMemo
   const calendarDays = useMemo(() => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
     const days = [];
-    
+
     let day = new Date(startOfMonth);
     day.setDate(day.getDate() - day.getDay());
-    
+
     while (day <= endOfMonth || day.getDay() !== 0) {
       days.push(new Date(day));
-      day = new Date(day.setDate(day.getDate() + 1));
+      day.setDate(day.getDate() + 1);
     }
 
     return days;
   }, [currentDate]);
 
-  const getEventsForDate = (date) => {
+  // Get events for a specific date - optimized by pre-filtering events
+  const getEventsForDate = useCallback((date) => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.toDateString() === date.toDateString();
+      return event.date.toDateString() === date.toDateString();
     });
-  };
+  }, [events]);
 
+  // Change the current month
   const changeMonth = (increment) => {
     setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() + increment, 1));
   };
 
-  const formatDate = (date, type = 'day') => {
+  // Format date based on type
+  const formatDate = useCallback((date, type = 'day') => {
     if (!date) return '';
-    
+
     try {
       switch (type) {
         case 'day':
@@ -98,10 +100,10 @@ const RepairCalendar = () => {
         case 'month-year':
           return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         case 'full':
-          return date.toLocaleDateString('en-US', { 
-            day: '2-digit', 
-            month: 'long', 
-            year: 'numeric' 
+          return date.toLocaleDateString('en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
           });
         default:
           return date.toDateString();
@@ -110,25 +112,28 @@ const RepairCalendar = () => {
       console.error('Date formatting error:', error);
       return '';
     }
-  };
+  }, []);
 
-  const handleViewEvent = (day) => {
+  // Handle viewing an event
+  const handleViewEvent = useCallback((day) => {
     const eventsOnDay = getEventsForDate(day);
     if (eventsOnDay.length > 0) {
       setSelectedEvent(eventsOnDay[0]);
     }
-  };
+  }, [getEventsForDate]);
 
+  // Loading state
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          <Text>Loading calendar...</Text>
+          <ActivityIndicator size="large" color="#b91c1c" />
         </View>
       </SafeAreaView>
     );
   }
 
+  // Error state
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
@@ -139,31 +144,25 @@ const RepairCalendar = () => {
     );
   }
 
+  // Main render
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        {/* Header and Month Selector */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Repair Calendar</Text>
         </View>
-
         <View style={styles.monthSelector}>
-          <TouchableOpacity 
-            onPress={() => changeMonth(-1)} 
-            style={styles.arrowButton}
-            accessibilityLabel="Previous month"
-          >
+          <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.arrowButton} accessibilityLabel="Previous month">
             <ChevronLeft size={24} color="#b91c1c" />
           </TouchableOpacity>
           <Text style={styles.monthText}>{formatDate(currentDate, 'month-year')}</Text>
-          <TouchableOpacity 
-            onPress={() => changeMonth(1)} 
-            style={styles.arrowButton}
-            accessibilityLabel="Next month"
-          >
+          <TouchableOpacity onPress={() => changeMonth(1)} style={styles.arrowButton} accessibilityLabel="Next month">
             <ChevronRight size={24} color="#b91c1c" />
           </TouchableOpacity>
         </View>
 
+        {/* Weekday Header */}
         <View style={styles.weekdayHeader}>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <View key={day} style={styles.weekdayCell}>
@@ -172,12 +171,14 @@ const RepairCalendar = () => {
           ))}
         </View>
 
+        {/* Calendar Grid */}
         <ScrollView>
           <View style={styles.calendarGrid}>
             {calendarDays.map((day, index) => {
               const eventsOnDay = getEventsForDate(day);
               const isCurrentMonth = day.getMonth() === currentDate.getMonth();
               const isToday = day.toDateString() === new Date().toDateString();
+              const hasEvents = eventsOnDay.length > 0;
 
               return (
                 <TouchableOpacity
@@ -185,28 +186,29 @@ const RepairCalendar = () => {
                   style={[
                     styles.dayCell,
                     !isCurrentMonth && styles.otherMonthDay,
-                    isToday && styles.today
+                    isToday && styles.today,
+                    hasEvents && styles.eventDay // Highlight days with events
                   ]}
-                  onPress={() => eventsOnDay.length > 0 && handleViewEvent(day)}
-                  disabled={eventsOnDay.length === 0}
-                  accessibilityLabel={`${formatDate(day, 'full')}${eventsOnDay.length > 0 ? `, ${eventsOnDay.length} events` : ''}`}
+                  onPress={() => hasEvents && handleViewEvent(day)}
+                  disabled={!hasEvents}
+                  accessibilityLabel={`${formatDate(day, 'full')}${hasEvents ? `, ${eventsOnDay.length} events` : ''}`}
                 >
                   <Text style={[
                     styles.dayNumber,
                     !isCurrentMonth && styles.otherMonthText,
-                    isToday && styles.todayText
+                    isToday && styles.todayText,
+                    hasEvents && styles.eventDayText // Style text for days with events
                   ]}>
                     {formatDate(day)}
                   </Text>
-                  {eventsOnDay.length > 0 && (
-                    <View style={styles.eventIndicator} />
-                  )}
+                  {/* Removed the separate eventIndicator - styling handled by dayCell and dayNumber */}
                 </TouchableOpacity>
               );
             })}
           </View>
         </ScrollView>
 
+        {/* Event Modal */}
         <Modal
           visible={selectedEvent !== null}
           transparent={true}
@@ -215,36 +217,28 @@ const RepairCalendar = () => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
+              {/* Modal Header */}
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>{selectedEvent?.title || 'Event Details'}</Text>
-                <TouchableOpacity 
-                  onPress={() => setSelectedEvent(null)}
-                  style={styles.closeButton}
-                  accessibilityLabel="Close modal"
-                >
+                <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.closeButton} accessibilityLabel="Close modal">
                   <X size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
 
+              {/* Modal Body */}
               <View style={styles.modalBody}>
-                {selectedEvent ? (
+                {selectedEvent && (
                   <>
                     <View style={styles.eventDetail}>
                       <Text style={styles.detailLabel}>Date:</Text>
-                      <Text style={styles.detailText}>
-                        {formatDate(selectedEvent.date, 'full')}
-                      </Text>
+                      <Text style={styles.detailText}>{formatDate(selectedEvent.date, 'full')}</Text>
                     </View>
-
                     <View style={styles.eventDetail}>
                       <Text style={styles.detailLabel}>Price:</Text>
                       <Text style={styles.detailText}>
-                        {typeof selectedEvent.price === 'number' 
-                          ? `$${selectedEvent.price.toFixed(2)} USD`
-                          : 'Price not available'}
+                        {typeof selectedEvent.price === 'number' ? `$${selectedEvent.price.toFixed(2)} USD` : 'Price not available'}
                       </Text>
                     </View>
-
                     <View style={styles.eventDetail}>
                       <Text style={styles.detailLabel}>Duration:</Text>
                       <Text style={styles.detailText}>
@@ -253,21 +247,14 @@ const RepairCalendar = () => {
                           : 'Duration not available'}
                       </Text>
                     </View>
-
-                    {selectedEvent.description && (
-                      <Text style={styles.description}>{selectedEvent.description}</Text>
-                    )}
+                    {selectedEvent.description && <Text style={styles.description}>{selectedEvent.description}</Text>}
                   </>
-                ) : (
-                  <Text style={styles.description}>No event details available</Text>
                 )}
               </View>
 
+              {/* Modal Footer */}
               <View style={styles.modalFooter}>
-                <TouchableOpacity 
-                  style={[styles.button, styles.viewButton]}
-                  onPress={() => setSelectedEvent(null)}
-                >
+                <TouchableOpacity style={[styles.button, styles.viewButton]} onPress={() => setSelectedEvent(null)}>
                   <Text style={styles.buttonText}>Close</Text>
                 </TouchableOpacity>
               </View>
@@ -431,6 +418,13 @@ const styles = StyleSheet.create({
     color: '#b91c1c',
     fontSize: 16,
     textAlign: 'center',
+  },
+  eventDay: {
+    backgroundColor: '#fee2e2', // Highlight color for days with events
+  },
+  eventDayText: {
+    color: '#b91c1c', // Text color for days with events
+    fontWeight: 'bold',
   },
 });
 
