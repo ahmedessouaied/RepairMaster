@@ -110,10 +110,10 @@ const TabsLayout = () => {
         )}
         {role === "client" && (
           <Tabs.Screen
-            name="home client"
+            name="homeclient"
             options={{
               title: "Home",
-              headerShown: true,
+              headerShown: false,
               tabBarIcon: ({ color, focused }) => (
                 <TabIcon icon={icons.home} color={color} name="Home" focused={focused} />
               ),
@@ -146,6 +146,9 @@ const TabsLayout = () => {
           options={{
             title: "Calendar",
             headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon icon={icons.bookmark} color={color} name="Calendar" focused={focused} />
+            ),
           }}
         />
       </Tabs>

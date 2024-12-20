@@ -40,7 +40,7 @@ const SignIn = () => {
       const clientDocs = await getDocs(clientQuery);
       
       if (!clientDocs.empty) {
-        router.replace('/home client');
+        router.replace('/homeclient');
         return;
       }
       

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const DAY_WIDTH = (SCREEN_WIDTH - 40) / 7;
 
-const RepairCalendar = () => {
+const repaircalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Start with January 2025
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
+    paddingTop: 20,
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937',
@@ -514,4 +515,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RepairCalendar;
+export default repaircalendar;

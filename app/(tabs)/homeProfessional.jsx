@@ -4,8 +4,8 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,14 +13,14 @@ import { images } from "../../constants/index.js";
 import SearchInput from "../../components/SearchInput.jsx";
 import CardHeader from "../../components/CardHeader.jsx";
 import HorizontalScrollingCards from "../../components/HorizontalScrollingCards.jsx";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig.js";
-import GovernorateDropdown from "../../components/GovernorateDropdown.jsx";
-import { auth } from "../../config/firebaseConfig.js";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { router } from "expo-router";
+import { auth } from "../../config/firebaseConfig.js";
+import GovernorateDropdown from "../../components/GovernorateDropdown.jsx";
 
-const Home = () => {
-  const [professionals, setProfessionals] = useState([]);
+const homeProfessional = () => {
+  const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGovernorate, setSelectedGovernorate] = useState("");
 
@@ -67,34 +67,29 @@ const Home = () => {
     },
   ];
 
-  const fetchProfessionals = async (governorate = "") => {
+  const fetchProblems = async (governorate = "") => {
     setLoading(true);
     try {
       let q;
       if (governorate) {
         // If governorate is selected, create a filtered query
         q = query(
-          collection(db, "Professionals"),
-          where("governorate", "==", governorate)
+          collection(db, "Problems"),
+          where("localisation", "==", governorate)
         );
       } else {
-        // If no governorate selected, get all professionals
-        q = collection(db, "Professionals");
+        // If no governorate selected, get all problems
+        q = collection(db, "Problems");
       }
 
       const querySnapshot = await getDocs(q);
-      const professionalsList = [];
+      const problemsList = [];
       querySnapshot.forEach((doc) => {
-        const professionalData = doc.data();
-        professionalsList.push({
-          id: doc.id,
-          ...professionalData,
-          imageUrl: professionalData.Profile_pic || null,
-        });
+        problemsList.push({ id: doc.id, ...doc.data() });
       });
-      setProfessionals(professionalsList);
+      setProblems(problemsList);
     } catch (error) {
-      console.error("Error fetching Professionals:", error);
+      console.error("Error fetching Problems:", error);
     } finally {
       setLoading(false);
     }
@@ -103,19 +98,21 @@ const Home = () => {
   // Handle governorate selection
   const handleGovernorateSelect = (governorate) => {
     setSelectedGovernorate(governorate);
-    fetchProfessionals(governorate);
+    fetchProblems(governorate);
   };
 
   useEffect(() => {
-    // Initial fetch of all professionals
-    fetchProfessionals();
+    // Initial fetch of all problems
+    fetchProblems();
   }, []);
 
-  const renderProfessionalImage = (imageUrl) => {
-    if (!imageUrl) {
+  const renderProblemImage = (photos) => {
+    const defaultImage = require("../../assets/images/jobs/photo2.png");
+    
+    if (!photos || photos.length === 0) {
       return (
         <Image
-          source={require("../../assets/images/jobs/photo2.png")}
+          source={defaultImage}
           style={styles.Jobimage}
         />
       );
@@ -123,7 +120,7 @@ const Home = () => {
 
     return (
       <Image
-        source={{ uri: imageUrl }}
+        source={{ uri: photos[0] }}
         style={styles.Jobimage}
         loadingIndicatorSource={<ActivityIndicator />}
       />
@@ -133,6 +130,7 @@ const Home = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
+        {/* Header Section */}
         <View className="my-6 px-4 space-y-6">
           <View className="justify-between items-start flex-row mb-4">
             <View>
@@ -154,15 +152,17 @@ const Home = () => {
           <SearchInput />
         </View>
 
+        {/* Domains Section */}
         <View>
-          <Text className="text-2xl font-pmedium text-red-100" style={{ marginLeft: 15 }}>
-          Professionals in your area
+          <Text className="text-2xl font-pmedium text-red-100">
+            Available Domains
           </Text>
         </View>
-
         <SafeAreaView style={styles.container}>
           <HorizontalScrollingCards cards={DomainesImages} />
         </SafeAreaView>
+
+        {/* Governorate Filter Section */}
         <View>
           <Text className="text-2xl font-pmedium text-red-100 text-left pl-5">
             Filter by region
@@ -176,32 +176,35 @@ const Home = () => {
           />
         </View>
 
+        {/* Problems List Section */}
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
         ) : (
           <View style={styles.cardsContainer}>
-            {professionals.length === 0 ? (
+            {problems.length === 0 ? (
               <Text style={styles.noResultsText}>
-                No professionals found in this governorate
+                No problems found in this governorate
               </Text>
             ) : (
-              professionals.map((Professional) => (
+              problems.map((problem) => (
                 <TouchableOpacity
-                  key={Professional.id}
+                  key={problem.id}
                   onPress={() =>
                     router.push({
-                      pathname: "/card/profileDetails",
-                      params: { professionalId: Professional.id },
+                      pathname: "/card/repairJobDetails",
+                      params: { problemId: problem.id },
                     })
                   }
                 >
                   <View style={styles.card}>
                     <CardHeader
-                      Name={Professional.username}
-                      desc={Professional.description}
-                      loc={Professional.governorate}
+                      Name={problem.title}
+                      desc={problem.description}
+                      loc={problem.localisation}
                     />
-                    {renderProfessionalImage(Professional.imageUrl)}
+                    {renderProblemImage(problem.photos)}
                   </View>
                 </TouchableOpacity>
               ))
@@ -219,6 +222,12 @@ const styles = StyleSheet.create({
     height: 300,
     alignItems: "center",
     justifyContent: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
   cardsContainer: {
     padding: 16,
@@ -248,4 +257,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default homeProfessional;

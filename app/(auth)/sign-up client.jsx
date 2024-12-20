@@ -97,7 +97,7 @@ const SignUpUser = () => {
       console.log('User created successfully:', user);
       console.log('Client document created in Firestore');
 
-      router.replace('/home client');
+      router.replace('/homeclient');
     } catch (error) {
       // Handle specific Firebase auth errors
       if (error.code === 'auth/email-already-in-use') {
