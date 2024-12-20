@@ -6,56 +6,72 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
- } from "react-native";
- import React, { useState, useEffect, useRef } from "react";
- import { SafeAreaView } from "react-native-safe-area-context";
- import { images } from "../../constants/index.js";
- import SearchInput from "../../components/SearchInput.jsx";
- import CardHeader from "../../components/CardHeader.jsx";
- import SmoothHorizontalScroll from "../../components/SmoothHorizontalScroll.jsx";
- import Firestore, { db } from '../../config/firebaseConfig.js'; // Firebase imports
- import { collection, getDocs } from "firebase/firestore";
- import { router } from "expo-router";
- 
- 
- 
- const Home = () => {
-  
+} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { images } from "../../constants/index.js";
+import SearchInput from "../../components/SearchInput.jsx";
+import CardHeader from "../../components/CardHeader.jsx";
+import HorizontalScrollingCards from "../../components/HorizontalScrollingCards.jsx";
+import Firestore, { db } from "../../config/firebaseConfig.js"; // Firebase imports
+import { getAuth } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
+import { router } from "expo-router";
+
+const Home = () => {
   const [professionals, setProfessionals] = useState([]); // State for professional data
   const [loading, setLoading] = useState(true); // Loading state
- 
+
+  const auth = getAuth();
+
   const DomainesImages = [
-    { id: "1", src: require("../../assets/images/cards/card1.jpg"), title: "A" },
-    { id: "2", src: require("../../assets/images/cards/card2.jpeg"), title: "A" },
-    { id: "3", src: require("../../assets/images/cards/card3.jpg"), title: "A" },
-    { id: "4", src: require("../../assets/images/cards/card4.jpg"), title: "A" },
+    {
+      description: "1",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "2",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "3",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
+    {
+      description: "4",
+      uri: "https://res.cloudinary.com/dgszdxhif/image/upload/v1734617774/upload_y5x5xz.jpg",
+      title: "A",
+    },
   ];
- 
+
   const fetchProfessionals = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "Professionals"));
-      const ProfessionalsList = [];
+      let ProfessionalsList = [];
       querySnapshot.forEach((doc) => {
         const professionalData = doc.data();
-        professionalsList.push({
+        ProfessionalsList.push({
           id: doc.id,
           ...professionalData,
           imageUrl: professionalData.Profile_pic || null,
         });
       });
-      setProfessionals(professionalsList);
+      setProfessionals(ProfessionalsList);
     } catch (error) {
       console.error("Error fetching Professionals:", error);
     } finally {
       setLoading(false);
     }
   };
- 
+
   useEffect(() => {
     // Initial fetch of all professionals
     fetchProfessionals();
   }, []);
- 
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
@@ -66,7 +82,7 @@ import {
                 Welcome Back
               </Text>
               <Text className="text-2xl font-psemibold text-black">
-                Lehne nhoto pro
+                {auth.currentUser?.username}{" "}
               </Text>
             </View>
             <View className="mt-2">
@@ -79,47 +95,46 @@ import {
           </View>
           <SearchInput />
         </View>
- 
+
         <View>
-          <Text className="text-2xl font-pmedium text-red-100 text-center">
+          <Text className="text-2xl font-pmedium text-red-100">
             Available Domains
           </Text>
         </View>
- 
+
         <SafeAreaView style={styles.container}>
-          <SmoothHorizontalScroll images={DomainesImages} />
+          <HorizontalScrollingCards cards={DomainesImages} />
         </SafeAreaView>
- 
+
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           professionals.map((Professional) => (
-            <TouchableOpacity 
-              key={Professional.id} 
-              style={styles.card} 
-              onPress={() => router.push('/card/repairJobDetails')}
- >
-            <View key={Professional.id} style={styles.card}>
-              <CardHeader
-                Name={Professional.Name}
-                desc={Professional.Description}
-                loc={Professional.Location}
- 
-              />
-              <Image
-                source={{ uri: '../../assets/images/jobs/photo2.png' }}
-                style={styles.Jobimage}
-              />
-            </View>
+            <TouchableOpacity
+              key={Professional.id}
+              style={styles.card}
+              onPress={() => router.push("/card/repairJobDetails")}
+            >
+              <View key={Professional.id} style={styles.card}>
+                <CardHeader
+                  Name={Professional.Name}
+                  desc={Professional.Description}
+                  loc={Professional.Location}
+                />
+                <Image
+                  source={{ uri: "../../assets/images/jobs/photo2.png" }}
+                  style={styles.Jobimage}
+                />
+              </View>
             </TouchableOpacity>
           ))
         )}
       </ScrollView>
     </SafeAreaView>
   );
- };
- 
- const styles = StyleSheet.create({
+};
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: 300,
@@ -146,6 +161,6 @@ import {
     borderRadius: 12,
     resizeMode: "cover",
   },
- });
- 
- export default Home;
+});
+
+export default Home;
