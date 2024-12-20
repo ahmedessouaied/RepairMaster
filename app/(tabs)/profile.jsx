@@ -72,12 +72,9 @@ const Profile = () => {
             </View>
             <Text style={styles.cardOffers}>3 offers received</Text>
           </View>
-          <TouchableOpacity style={styles.detailsButton}>
-            <TouchableOpacity
-              onPress={() => router.push({pathname: "/profileInfo/OffersReceived"})}
-            >
+          <TouchableOpacity style={styles.detailsButton} 
+              onPress={() => router.push({pathname: "/profileInfo/offersReceived"})}>
               <Text style={styles.detailsButtonText}>View Details</Text>
-            </TouchableOpacity>
           </TouchableOpacity>
         </View>
 

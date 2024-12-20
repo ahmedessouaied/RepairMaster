@@ -46,7 +46,7 @@ const RootLayout = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="profileInfo/OffersReceived"
+          name="profileInfo/offersReceived"
           options={{ headerShown: true, title: "Offers Received" }}
         />
         <Stack.Screen
