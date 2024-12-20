@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,50 +9,105 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../config/firebaseConfig';
 
 const { width } = Dimensions.get('window');
 
 const RepairJobDetails = () => {
+  const { problemId } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
   const [bidAmount, setBidAmount] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [jobDetails, setJobDetails] = useState(null);
 
-  const jobDetails = {
-    owner: {
-      name: "Sarah Johnson",
-      email: "sarah.j@example.com",
-      phone: "+1 (555) 234-5678",
-      image: "/api/placeholder/64/64" // You'll need to replace with actual image URL
-    },
-    repair: {
-      title: "Leaking Bathroom Faucet Repair",
-      description: "Need urgent repair for a constantly dripping bathroom faucet. The leak has been ongoing for about a week and is getting worse. The faucet is a dual-handle model installed around 5 years ago. Would prefer someone who can come in the next 2-3 days.",
-      images: [
-        "/api/placeholder/800/600", // Replace with actual image URLs
-        "/api/placeholder/800/600",
-        "/api/placeholder/800/600"
-      ],
-      location: "Brooklyn, NY",
-      postedDate: "2024-03-18"
-    }
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Date not available';
+    
+    // Handle both Firestore Timestamp and regular Date objects
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    
+    // Format the date
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
+  useEffect(() => {
+    const fetchProblemDetails = async () => {
+      try {
+        const problemDoc = await getDoc(doc(db, 'Problems', problemId));
+        if (problemDoc.exists()) {
+          const data = problemDoc.data();
+          setJobDetails({
+            owner: {
+              name: data.clientName || "Anonymous",
+              phone: data.phoneNumber || "No phone number provided",
+              image: data.clientImage || "/api/placeholder/64/64"
+            },
+            repair: {
+              title: data.title,
+              description: data.description,
+              images: data.photos || [],
+              location: data.localisation,
+              postedDate: data.createdAt,
+              category: data.category,
+              status: data.status
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching problem details:', error);
+        Alert.alert('Error', 'Failed to load repair job details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (problemId) {
+      fetchProblemDetails();
+    }
+  }, [problemId]);
+
   const handlePrevImage = () => {
+    if (!jobDetails?.repair.images.length) return;
     setCurrentImageIndex((prev) => 
       prev === 0 ? jobDetails.repair.images.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
+    if (!jobDetails?.repair.images.length) return;
     setCurrentImageIndex((prev) => 
       prev === jobDetails.repair.images.length - 1 ? 0 : prev + 1
     );
   };
 
   const handleBidSubmit = () => {
-    Alert.alert('Bid Submitted', `Your bid of $${bidAmount} has been submitted`);
+    Alert.alert('Bid Submitted', `Your bid of ${bidAmount} TND has been submitted`);
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#ef4444" />
+      </View>
+    );
+  }
+
+  if (!jobDetails) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.description}>Problem not found</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -67,10 +122,6 @@ const RepairJobDetails = () => {
             <Text style={styles.ownerName}>{jobDetails.owner.name}</Text>
             <View style={styles.contactInfo}>
               <Text style={styles.contactText}>
-                <Text style={styles.contactLabel}>Email: </Text>
-                {jobDetails.owner.email}
-              </Text>
-              <Text style={styles.contactText}>
                 <Text style={styles.contactLabel}>Phone: </Text>
                 {jobDetails.owner.phone}
               </Text>
@@ -83,54 +134,69 @@ const RepairJobDetails = () => {
       <View style={styles.card}>
         <Text style={styles.title}>{jobDetails.repair.title}</Text>
         
-        {/* Image Gallery */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: jobDetails.repair.images[currentImageIndex] }}
-            style={styles.mainImage}
-          />
-          <TouchableOpacity
-            style={[styles.navButton, styles.leftButton]}
-            onPress={handlePrevImage}
-          >
-            <ArrowLeft color="white" size={24} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.navButton, styles.rightButton]}
-            onPress={handleNextImage}
-          >
-            <ArrowRight color="white" size={24} />
-          </TouchableOpacity>
-          <View style={styles.pagination}>
-            {jobDetails.repair.images.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.paginationDot,
-                  currentImageIndex === index && styles.activeDot
-                ]}
-              />
-            ))}
+        {jobDetails.repair.status && (
+          <View style={[
+            styles.statusBadge, 
+            jobDetails.repair.status === 'on hold' && styles.statusOnHold
+          ]}>
+            <Text style={styles.statusText}>
+              {jobDetails.repair.status}
+            </Text>
           </View>
-        </View>
+        )}
 
-        {/* Thumbnail Preview */}
-        <ScrollView horizontal style={styles.thumbnailContainer}>
-          {jobDetails.repair.images.map((image, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => setCurrentImageIndex(index)}
-            >
+        {/* Image Gallery */}
+        {jobDetails.repair.images.length > 0 && (
+          <>
+            <View style={styles.imageContainer}>
               <Image
-                source={{ uri: image }}
-                style={[
-                  styles.thumbnail,
-                  currentImageIndex === index && styles.activeThumbnail
-                ]}
+                source={{ uri: jobDetails.repair.images[currentImageIndex] }}
+                style={styles.mainImage}
               />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+              <TouchableOpacity
+                style={[styles.navButton, styles.leftButton]}
+                onPress={handlePrevImage}
+              >
+                <ArrowLeft color="white" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.navButton, styles.rightButton]}
+                onPress={handleNextImage}
+              >
+                <ArrowRight color="white" size={24} />
+              </TouchableOpacity>
+              <View style={styles.pagination}>
+                {jobDetails.repair.images.map((_, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.paginationDot,
+                      currentImageIndex === index && styles.activeDot
+                    ]}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* Thumbnail Preview */}
+            <ScrollView horizontal style={styles.thumbnailContainer}>
+              {jobDetails.repair.images.map((image, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setCurrentImageIndex(index)}
+                >
+                  <Image
+                    source={{ uri: image }}
+                    style={[
+                      styles.thumbnail,
+                      currentImageIndex === index && styles.activeThumbnail
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
 
         <View style={styles.descriptionContainer}>
           <Text style={styles.sectionTitle}>Description</Text>
@@ -138,31 +204,38 @@ const RepairJobDetails = () => {
           
           <View style={styles.metaInfo}>
             <Text style={styles.metaText}>📍 {jobDetails.repair.location}</Text>
-            <Text style={styles.metaText}>📅 Posted: {jobDetails.repair.postedDate}</Text>
+            {jobDetails.repair.category && (
+              <Text style={styles.metaText}>🏷️ {jobDetails.repair.category}</Text>
+            )}
+            <Text style={styles.metaText}>
+              📅 Posted: {formatDate(jobDetails.repair.postedDate)}
+            </Text>
           </View>
         </View>
       </View>
 
       {/* Bid Submission Section */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Submit Your Bid</Text>
-        <View style={styles.bidForm}>
-          <Text style={styles.label}>Your Bid Amount ($)</Text>
-          <TextInput
-            style={styles.input}
-            value={bidAmount}
-            onChangeText={setBidAmount}
-            placeholder="Enter your bid amount"
-            keyboardType="numeric"
-          />
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={handleBidSubmit}
-          >
-            <Text style={styles.submitButtonText}>Submit Bid</Text>
-          </TouchableOpacity>
+      {(!jobDetails.repair.status || jobDetails.repair.status === 'on hold') && (
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Submit Your Bid</Text>
+          <View style={styles.bidForm}>
+            <Text style={styles.label}>Your Bid Amount in TND</Text>
+            <TextInput
+              style={styles.input}
+              value={bidAmount}
+              onChangeText={setBidAmount}
+              placeholder="Enter your bid amount"
+              keyboardType="numeric"
+            />
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleBidSubmit}
+            >
+              <Text style={styles.submitButtonText}>Submit Bid</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </ScrollView>
   );
 };
@@ -172,6 +245,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f3f4f6',
     padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
   },
   card: {
     backgroundColor: 'white',
@@ -221,6 +300,23 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 16,
   },
+  statusBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#9CA3AF',
+    marginBottom: 16,
+  },
+  statusText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+    textTransform: 'capitalize',
+  },
+  statusOnHold: {
+    backgroundColor: '#FF0000',
+  },
   imageContainer: {
     position: 'relative',
     marginBottom: 16,
@@ -237,6 +333,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 20,
     padding: 8,
+    transform: [{ translateY: -20 }],
   },
   leftButton: {
     left: 8,
@@ -291,11 +388,13 @@ const styles = StyleSheet.create({
   metaInfo: {
     flexDirection: 'row',
     marginTop: 12,
+    flexWrap: 'wrap',
   },
   metaText: {
     fontSize: 14,
     color: '#6b7280',
     marginRight: 16,
+    marginBottom: 4,
   },
   bidForm: {
     gap: 12,

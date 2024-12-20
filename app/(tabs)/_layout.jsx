@@ -141,6 +141,13 @@ const TabsLayout = () => {
             ),
           }}
         />
+        <Tabs.Screen
+          name="repaircalendar"
+          options={{
+            title: "Calendar",
+            headerShown: false,
+          }}
+        />
       </Tabs>
       <StatusBar backgroundColor="#161622" style="light" />
     </>
