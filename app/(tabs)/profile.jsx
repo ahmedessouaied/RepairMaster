@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { images } from "../../constants";
 import {
   View,
@@ -9,13 +9,39 @@ import {
   SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
+import { db } from "../../config/firebaseConfig.js";
+import { getAuth } from "firebase/auth";
+import PhotoUploadComponent from "../../components/PhotoUploadComponent";
 
 const Profile = () => {
+  const [username, setUsername] = useState("user");
+  const [profileImage_uri, setProfileImage_uri] = useState("https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg");
+  const icons = {upload: ""}
+  
+  const auth = getAuth();
+
+
+  const handlePhotoUploaded = (cloudinaryUrls) => {
+    console.log(cloudinaryUrls);
+  };
+
+    useEffect(() => {
+      setUsername(auth.currentUser.displayName);
+      const img = auth.currentUser.Profile_pic;
+      if (img != "") {
+        setProfileImage_uri(img);
+      }
+    }, []);
+
   return (
     <SafeAreaView style={[styles.container, { marginTop: 20 }]}>
       <View style={styles.profileSection}>
-        <Image source={images.profile} style={styles.profileImage} />
-        <Text style={styles.profileName}>Emna Maalej</Text>
+      {/* <PhotoUploadComponent icons={icons} styles={styles} onPhotoUpload={handlePhotoUploaded} photoSelectionLimit={1} /> */}
+        
+        
+        <Image source={{ uri: profileImage_uri, width: 100,
+    height: 100, }} style={styles.profileImage} />
+        <Text style={styles.profileName}>{username}</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>2</Text>
@@ -48,7 +74,7 @@ const Profile = () => {
           </View>
           <TouchableOpacity style={styles.detailsButton}>
             <TouchableOpacity
-              onPress={() => router.push("/offers/OffersReceived")}
+              onPress={() => router.push({pathname: "/profileInfo/OffersReceived"})}
             >
               <Text style={styles.detailsButtonText}>View Details</Text>
             </TouchableOpacity>
@@ -67,7 +93,7 @@ const Profile = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.detailsButton}
-              onPress={() => router.push("/RepairDetails/RepairDetails")}>
+              onPress={() => router.push({pathname: "/profileInfo/repairDetails"})}>
             <Text style={styles.detailsButtonText}>View Details</Text>
           </TouchableOpacity>
         </View>
@@ -86,7 +112,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     padding: 24,
   },
-  profileImage: {
+  upload_photo: {
     width: 80,
     height: 80,
     borderRadius: 40,

@@ -38,7 +38,7 @@ const offers = [
  },
 ];
 
-const OffersReceived = () => {
+const offersReceived = () => {
   const handleGoBack = () => {
     router.back();
   };
@@ -176,4 +176,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OffersReceived;
+export default offersReceived;

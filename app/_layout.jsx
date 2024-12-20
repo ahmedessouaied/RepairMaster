@@ -46,11 +46,11 @@ const RootLayout = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="offers/OffersReceived"
+          name="profileInfo/OffersReceived"
           options={{ headerShown: true, title: "Offers Received" }}
         />
         <Stack.Screen
-          name="RepairDetails/RepairDetails"
+          name="profileInfo/repairDetails"
           options={{ headerShown: true, title: "Repair Details" }}
         />
         <Stack.Screen

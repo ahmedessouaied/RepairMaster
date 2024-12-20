@@ -1,49 +1,51 @@
+// StarRating.js
 import React, { useState, useEffect } from 'react';
-import { Star } from 'lucide-react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Make sure to install react-native-vector-icons
 
-const StarRating = ({ 
-  onRatingChange, 
-  initialRating = 0 
-}) => {
+const StarRating = ({ onRatingChange, initialRating = 0 }) => {
   const [rating, setRating] = useState(initialRating);
 
-  // UseEffect to handle changes to initialRating prop
   useEffect(() => {
     setRating(initialRating);
   }, [initialRating]);
 
   const handleStarPress = (selectedRating) => {
-    // Update rating state
     setRating(selectedRating);
-
-    // Call the optional callback if provided
     if (onRatingChange) {
       onRatingChange(selectedRating);
     }
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2">
+    <View style={styles.container}>
       {[1, 2, 3, 4, 5].map((starNumber) => (
-        <button 
+        <TouchableOpacity
           key={starNumber}
-          onClick={() => handleStarPress(starNumber)}
-          className="focus:outline-none"
-          type="button"
+          onPress={() => handleStarPress(starNumber)}
+          style={styles.starContainer}
         >
-          <Star 
-            size={40} 
-            className={`cursor-pointer transition-colors duration-200 ${
-              starNumber <= rating 
-                ? 'fill-yellow-400 text-yellow-400' 
-                : 'text-gray-300 fill-gray-300'
-            }`}
+          <Icon
+            name={starNumber <= rating ? 'star' : 'star-o'}
+            size={40}
+            color={starNumber <= rating ? '#FFD700' : '#CCCCCC'}
           />
-        </button>
+        </TouchableOpacity>
       ))}
-    </div>
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  starContainer: {
+    padding: 5,
+  },
+});
 
 export default StarRating;

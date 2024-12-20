@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import StarRating from "../../components/StarRating";
 
-const RepairDetails = () => {
+const repairDetails = () => {
   const [comment, setComment] = useState("");
   const RepairDetailsJson = {
     id: 1,
@@ -219,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RepairDetails;
+export default repairDetails;
