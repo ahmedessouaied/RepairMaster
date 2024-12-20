@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
+import { getAuth } from 'firebase/auth';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +24,9 @@ const RepairJobDetails = () => {
   const { problemId } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [bidAmount, setBidAmount] = useState('');
+  const [estimatedTime, setEstimatedTime] = useState('');
+  const [interventionDate, setInterventionDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [jobDetails, setJobDetails] = useState(null);
 
@@ -89,8 +94,50 @@ const RepairJobDetails = () => {
     );
   };
 
-  const handleBidSubmit = () => {
-    Alert.alert('Bid Submitted', `Your bid of ${bidAmount} TND has been submitted`);
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setInterventionDate(selectedDate);
+    }
+  };
+
+  const handleBidSubmit = async () => {
+    if (!bidAmount || !estimatedTime || !interventionDate) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    const auth = getAuth();
+    const professionalId = auth.currentUser?.uid;
+
+    if (!professionalId) {
+      Alert.alert('Error', 'User not authenticated. Please log in.');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'offers'), {
+        Price_proposed: parseFloat(bidAmount),
+        Problem_id: problemId,
+        Statue: false, // Initial status is "denied"
+        working_time: parseInt(estimatedTime, 10),
+        date_proposed: interventionDate,
+        professional_id: professionalId,
+      });
+
+      Alert.alert(
+        'Bid Submitted',
+        `Your bid of ${bidAmount} TND has been successfully submitted.\nEstimated time: ${estimatedTime} hours\nIntervention date: ${interventionDate.toLocaleDateString()}`
+      );
+
+      // Reset form fields
+      setBidAmount('');
+      setEstimatedTime('');
+      setInterventionDate(new Date());
+    } catch (error) {
+      console.error('Error submitting bid:', error);
+      Alert.alert('Error', 'Failed to submit bid. Please try again.');
+    }
   };
 
   if (loading) {
@@ -217,7 +264,7 @@ const RepairJobDetails = () => {
       {/* Bid Submission Section */}
       {(!jobDetails.repair.status || jobDetails.repair.status === 'on hold') && (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Submit Your Bid</Text>
+          <Text style={styles.sectionTitle}>Offer details</Text>
           <View style={styles.bidForm}>
             <Text style={styles.label}>Your Bid Amount in TND</Text>
             <TextInput
@@ -227,6 +274,36 @@ const RepairJobDetails = () => {
               placeholder="Enter your bid amount"
               keyboardType="numeric"
             />
+
+            <Text style={styles.label}>Estimated Working Time (hours)</Text>
+            <TextInput
+              style={styles.input}
+              value={estimatedTime}
+              onChangeText={setEstimatedTime}
+              placeholder="Enter estimated time"
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Proposed Intervention Date</Text>
+            <TouchableOpacity
+              style={styles.dateInput}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text style={styles.dateText}>
+                {interventionDate.toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={interventionDate}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
+
             <TouchableOpacity
               style={styles.submitButton}
               onPress={handleBidSubmit}
@@ -410,6 +487,17 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 12,
     fontSize: 16,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    padding: 12,
+    backgroundColor: 'white',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#374151',
   },
   submitButton: {
     backgroundColor: '#ef4444',
