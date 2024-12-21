@@ -67,6 +67,7 @@ const homeprofessional = () => {
     },
   ];
 
+  console.log(auth.currentUser)
   const fetchProblems = async (governorate = "") => {
     setLoading(true);
     try {
@@ -138,7 +139,7 @@ const homeprofessional = () => {
                 Welcome Back
               </Text>
               <Text className="text-2xl font-psemibold text-black">
-                {auth.currentUser.displayName}
+                {JSON.parse(auth.currentUser.displayName).username}
               </Text>
             </View>
             <View className="mt-2">
