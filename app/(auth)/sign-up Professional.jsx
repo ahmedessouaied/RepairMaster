@@ -134,7 +134,7 @@ const SignUpProfessional = () => {
       console.log("User created successfully:", user);
       console.log("Professional document created in Firestore");
 
-      router.replace("/home Professional");
+      router.replace("/homeprofessional");
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         Alert.alert(
