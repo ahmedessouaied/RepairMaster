@@ -73,18 +73,8 @@ const TabsLayout = () => {
             setRole("client");
             return;
           }
-  
-          // Check if the user exists in the "Professionals" collection
-          const professionalDoc = doc(firestore, "Professionals", user.uid);
-          const professionalSnap = await getDocs(professionalDoc);
-  
-          if (!professionalSnap.empty) {
-            setRole("professional");
-            return;
-          }
-  
-          // If the user doesn't exist in either collection, set role to null
-          setRole(null);
+          setRole("professional");
+
         
       }
     };
