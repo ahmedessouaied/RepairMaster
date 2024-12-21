@@ -113,7 +113,7 @@ const TabsLayout = () => {
         {/* Render Home Tab only if the user is a professional */}
         
           <Tabs.Screen
-            name="homeProfessional"
+            name="homeprofessional"
             options={{
               title: "Home",
               headerShown: false,

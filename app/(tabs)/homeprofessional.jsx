@@ -19,7 +19,7 @@ import { router } from "expo-router";
 import { auth } from "../../config/firebaseConfig.js";
 import GovernorateDropdown from "../../components/GovernorateDropdown.jsx";
 
-const homeProfessional = () => {
+const homeprofessional = () => {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGovernorate, setSelectedGovernorate] = useState("");
@@ -257,4 +257,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default homeProfessional;
+export default homeprofessional;
