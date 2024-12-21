@@ -3,8 +3,14 @@ import { View, Text, Image } from "react-native";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { icons } from "../../constants";
-import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {db, auth } from "../../config/firebaseConfig.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
@@ -24,12 +30,15 @@ const TabIcon = ({ icon, color, name, focused }) => {
           tintColor: color, // Set the icon color
         }}
       />
-      <Text
+      <Text numberOfLines={1}
         style={{
           color: color,
           fontSize: 9, // Adjust font size for better alignment
           marginTop: 5, // Add space between icon and text
           fontWeight: focused ? "600" : "400", // Bold text when focused
+          flexShrink: 0,
+          flexWrap: 'nowrap',
+          flexGrow: 1
         }}
       >
         {name}
@@ -40,37 +49,43 @@ const TabIcon = ({ icon, color, name, focused }) => {
 
 const TabsLayout = () => {
   const [role, setRole] = useState(null); // Store user role
-  const auth = getAuth();
-  const firestore = getFirestore();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       const user = auth.currentUser;
       if (user) {
-        try {
-          // Check if the user exists in the "Clients" collection
-          const clientDoc = doc(firestore, "Clients", user.uid);
-          const clientSnap = await getDoc(clientDoc);
+        
+          const userId = auth.currentUser?.uid;
+    
+          // console.log("Fetching data for user:", auth.currentUser);
+
+    
+          // Check Clients collection
+          const clientQuery = query(
+            collection(db, "Clients"),
+            where("userId", "==", userId)
+          );
+
+          const clientSnap = await getDocs(clientQuery);
+          console.log(clientSnap)
   
-          if (clientSnap.exists()) {
+          if (!clientSnap.empty) {
             setRole("client");
             return;
           }
   
           // Check if the user exists in the "Professionals" collection
           const professionalDoc = doc(firestore, "Professionals", user.uid);
-          const professionalSnap = await getDoc(professionalDoc);
+          const professionalSnap = await getDocs(professionalDoc);
   
-          if (professionalSnap.exists()) {
+          if (!professionalSnap.empty) {
             setRole("professional");
             return;
           }
   
           // If the user doesn't exist in either collection, set role to null
           setRole(null);
-        } catch (error) {
-          console.error("Error fetching user role:", error);
-        }
+        
       }
     };
   
@@ -96,19 +111,21 @@ const TabsLayout = () => {
         }}
       >
         {/* Render Home Tab only if the user is a professional */}
-        {role === "professional" && (
+        
           <Tabs.Screen
-            name="home Professional"
+            name="homeProfessional"
             options={{
               title: "Home",
               headerShown: false,
               tabBarIcon: ({ color, focused }) => (
                 <TabIcon icon={icons.home} color={color} name="Home" focused={focused} />
               ),
+              tabBarItemStyle: role === "professional" ? {} : { display: 'none' }
             }}
+            style={{opacity: 0}}
           />
-        )}
-        {role === "client" && (
+     
+       
           <Tabs.Screen
             name="homeclient"
             options={{
@@ -117,9 +134,10 @@ const TabsLayout = () => {
               tabBarIcon: ({ color, focused }) => (
                 <TabIcon icon={icons.home} color={color} name="Home" focused={focused} />
               ),
+              tabBarItemStyle: role === "client" ? {} : { display: 'none' }
             }}
           />
-        )}
+        
         
         <Tabs.Screen
           name="profile"
@@ -149,6 +167,7 @@ const TabsLayout = () => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon={icons.bookmark} color={color} name="Calendar" focused={focused} />
             ),
+              tabBarItemStyle: role === "professional" ? {} : { display: 'none' }
           }}
         />
       </Tabs>

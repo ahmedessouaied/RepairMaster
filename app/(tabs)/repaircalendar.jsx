@@ -356,7 +356,7 @@ const repaircalendar = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F5F5',
   },
   content: {
     flex: 1,

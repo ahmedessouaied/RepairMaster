@@ -181,8 +181,6 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   dropdown: {
-    borderWidth: 1,
-    borderColor: "#CCC",
     borderRadius: 8,
     backgroundColor: "#FFF",
   },
